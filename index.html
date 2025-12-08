@@ -611,6 +611,9 @@
         .image-generator {
             margin-top: 4rem;
             padding: 2rem 0;
+            position: relative;
+            z-index: 10;  /* 确保在浮动内容之上 */
+            background: var(--bg-primary);  /* 确保有背景色遮盖下方内容 */
         }
 
         .generator-container {
@@ -1554,12 +1557,17 @@
             otherObserver.observe(el);
         });
 
-        // Add parallax effect to hero section
+        // Add parallax effect to hero section (excluding image generator)
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const hero = document.querySelector('.hero');
             if (hero) {
-                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+                // 只对 hero 的上半部分应用视差效果，不包括图像生成器
+                const heroContent = hero.querySelector('.container');
+                if (heroContent) {
+                    // 使用更小的视差值，减少重叠影响
+                    heroContent.style.transform = `translateY(${scrolled * 0.2}px)`;
+                }
             }
         });
 
