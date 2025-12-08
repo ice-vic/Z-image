@@ -1480,6 +1480,10 @@
         </div>
     </footer>
 
+    <!-- 引入API模块 -->
+    <script src="js/api.js"></script>
+    <script src="js/config.js"></script>
+
     <script>
         // Smooth scroll function
         function scrollToSection(sectionId) {
@@ -1623,8 +1627,9 @@
             }
         });
 
-        // Image generation simulation (mock function for now)
+        // Image generation function
         let isGenerating = false;
+        let currentPrompt = '';
 
         async function generateImage() {
             if (isGenerating) return;
@@ -1636,9 +1641,9 @@
                 return;
             }
 
+            currentPrompt = prompt;
             const width = document.getElementById('width').value;
             const count = document.getElementById('count').value;
-            const style = document.getElementById('style').value;
             const seed = document.getElementById('seed').value;
             const steps = document.getElementById('steps').value;
             const guidance = document.getElementById('guidance').value;
@@ -1657,28 +1662,30 @@
             generateBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">生成中...</span>';
             imageGallery.style.display = 'none';
             loadingState.style.display = 'block';
-            outputStatus.textContent = '正在生成';
+            outputStatus.textContent = '正在连接API...';
             outputStatus.style.background = 'rgba(255, 165, 0, 0.1)';
             outputStatus.style.color = 'var(--warning-color)';
 
-            // Simulate progress
+            // Simulate progress for better UX
             let progress = 0;
             const progressInterval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress > 90) progress = 90;
-                progressFill.style.width = progress + '%';
-                progressText.textContent = Math.floor(progress) + '%';
-            }, 300);
+                if (progress < 90) {
+                    progress += Math.random() * 5;
+                    progressFill.style.width = progress + '%';
+                    progressText.textContent = Math.floor(progress) + '%';
+                }
+            }, 500);
 
             try {
-                // TODO: Replace with actual API call
-                // For now, simulate API call with setTimeout
-                await simulateImageGeneration({
-                    prompt,
+                outputStatus.textContent = '正在生成图像...';
+
+                // 调用真实API
+                const response = await window.imageAPI.generateImage({
+                    prompt: prompt,
                     width: parseInt(width),
-                    count: parseInt(count),
-                    style,
-                    seed: seed ? parseInt(seed) : null,
+                    height: parseInt(width),  // 保持正方形
+                    batchSize: parseInt(count),
+                    seed: seed || null,
                     steps: parseInt(steps),
                     guidance: parseFloat(guidance)
                 });
@@ -1688,8 +1695,8 @@
                 progressFill.style.width = '100%';
                 progressText.textContent = '100%';
 
-                // Show mock images (for demonstration)
-                showMockImages(count);
+                // 显示生成的图像
+                displayGeneratedImages(response.data || response.images || []);
 
                 outputStatus.textContent = '生成完成';
                 outputStatus.style.background = 'rgba(0, 255, 0, 0.1)';
@@ -1697,62 +1704,68 @@
 
             } catch (error) {
                 console.error('生成失败:', error);
-                outputStatus.textContent = '生成失败';
+                clearInterval(progressInterval);
+                progressFill.style.width = '0%';
+                progressText.textContent = '0%';
+
+                outputStatus.textContent = `生成失败: ${error.message}`;
                 outputStatus.style.background = 'rgba(255, 0, 0, 0.1)';
                 outputStatus.style.color = 'var(--error-color)';
+
+                // 显示错误提示
+                imageGallery.innerHTML = `
+                    <div style="grid-column: span 2; text-align: center; padding: 2rem;">
+                        <p style="color: var(--error-color);">生成失败</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">${error.message}</p>
+                    </div>
+                `;
+                imageGallery.style.display = 'grid';
             } finally {
                 // Reset UI
-                clearInterval(progressInterval);
                 isGenerating = false;
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = '<span class="btn-icon">✨</span><span class="btn-text">生成图像</span>';
 
-                setTimeout(() => {
-                    loadingState.style.display = 'none';
-                    imageGallery.style.display = 'grid';
-                }, 500);
+                if (!error) {
+                    setTimeout(() => {
+                        loadingState.style.display = 'none';
+                        imageGallery.style.display = 'grid';
+                    }, 500);
+                }
             }
         }
 
-        // Mock image generation function
-        function simulateImageGeneration(params) {
-            return new Promise((resolve) => {
-                console.log('生成参数:', params);
-                // Simulate processing time
-                setTimeout(resolve, 2000 + Math.random() * 2000);
-            });
-        }
-
-        // Show mock images for demonstration
-        function showMockImages(count) {
+        // 显示生成的图像
+        function displayGeneratedImages(images) {
             const gallery = document.getElementById('imageGallery');
             gallery.innerHTML = '';
 
-            // Mock image URLs (using placeholder images)
-            const mockImages = [
-                'https://picsum.photos/512/512?random=1',
-                'https://picsum.photos/512/512?random=2',
-                'https://picsum.photos/512/512?random=3',
-                'https://picsum.photos/512/512?random=4'
-            ];
+            if (!images || images.length === 0) {
+                gallery.innerHTML = `
+                    <div style="grid-column: span 2; text-align: center; padding: 2rem;">
+                        <p style="color: var(--text-secondary);">未生成到图像</p>
+                    </div>
+                `;
+                return;
+            }
 
-            const actualCount = Math.min(parseInt(count), 4);
-
-            for (let i = 0; i < actualCount; i++) {
+            images.forEach((imageData, index) => {
                 const imageContainer = document.createElement('div');
                 imageContainer.className = 'image-container';
 
                 const img = document.createElement('img');
-                img.src = mockImages[i];
-                img.alt = `生成的图像 ${i + 1}`;
+                // 处理不同的响应格式
+                const imageUrl = imageData.url || imageData.image_url || imageData;
+                img.src = imageUrl;
+                img.alt = `生成的图像 ${index + 1}`;
                 img.className = 'generated-image';
-                img.onclick = () => viewImage(img.src);
+                img.onclick = () => viewImage(imageUrl);
 
                 const actions = document.createElement('div');
                 actions.className = 'image-actions';
                 actions.innerHTML = `
-                    <button class="action-btn" onclick="downloadImage('${mockImages[i]}')">下载</button>
-                    <button class="action-btn" onclick="viewImage('${mockImages[i]}')">查看</button>
+                    <button class="action-btn" onclick="downloadImage('${imageUrl}')">下载</button>
+                    <button class="action-btn" onclick="viewImage('${imageUrl}')">查看</button>
                     <button class="action-btn" onclick="copyPrompt()">复制提示词</button>
                     <button class="action-btn" onclick="regenerateImage()">重新生成</button>
                 `;
@@ -1760,18 +1773,24 @@
                 imageContainer.appendChild(img);
                 imageContainer.appendChild(actions);
                 gallery.appendChild(imageContainer);
-            }
+            });
         }
 
         // Image action functions
         function downloadImage(imageUrl) {
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.download = `z-image-${Date.now()}.jpg`;
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // 使用API模块的下载功能
+            if (window.imageAPI) {
+                window.imageAPI.downloadImage(imageUrl);
+            } else {
+                // 备用方案
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = `z-image-${Date.now()}.jpg`;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
         }
 
         function viewImage(imageUrl) {
@@ -1781,13 +1800,77 @@
         function copyPrompt() {
             const prompt = document.getElementById('prompt').value;
             navigator.clipboard.writeText(prompt).then(() => {
-                alert('提示词已复制到剪贴板');
+                // 改用更友好的提示
+                showToast('提示词已复制到剪贴板', 'success');
+            }).catch(err => {
+                // 备用方案
+                const textArea = document.createElement('textarea');
+                textArea.value = prompt;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('提示词已复制到剪贴板', 'success');
             });
         }
 
         function regenerateImage() {
             generateImage();
         }
+
+        // Toast 提示函数
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                background: ${type === 'success' ? 'var(--success-color)' :
+                            type === 'error' ? 'var(--error-color)' :
+                            'var(--accent-blue)'};
+                color: white;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Add keyboard shortcuts
         document.addEventListener('keydown', function(e) {
