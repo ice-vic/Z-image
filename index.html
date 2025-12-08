@@ -1728,12 +1728,10 @@
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = '<span class="btn-icon">✨</span><span class="btn-text">生成图像</span>';
 
-                if (!error) {
-                    setTimeout(() => {
-                        loadingState.style.display = 'none';
-                        imageGallery.style.display = 'grid';
-                    }, 500);
-                }
+                setTimeout(() => {
+                    loadingState.style.display = 'none';
+                    imageGallery.style.display = 'grid';
+                }, 500);
             }
         }
 

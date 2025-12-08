@@ -6,35 +6,35 @@
 const CONFIG = {
     // Primary Image Generation API
     imageApi: {
-        url: process.env.IMAGE_API_URL || 'https://api.example.com/generate',
-        key: process.env.IMAGE_API_KEY || '',
-        timeout: parseInt(process.env.API_TIMEOUT) || 30000,
-        retries: parseInt(process.env.API_RETRIES) || 3
+        url: 'https://api.siliconflow.cn/v1/images/generations',
+        key: 'sk-gffvslaiesaueihepijwvpzrcblkxxgtlgvkgakpjcvvuzqt',
+        timeout: 60000,
+        retries: 3
     },
 
     // Alternative APIs
     apis: {
         openai: {
-            url: process.env.DALLE_API_URL || 'https://api.openai.com/v1/images/generations',
-            key: process.env.DALLE_API_KEY || ''
+            url: 'https://api.openai.com/v1/images/generations',
+            key: ''
         },
         stability: {
-            url: process.env.STABILITY_API_URL || 'https://api.stability.ai/v1/generation',
-            key: process.env.STABILITY_API_KEY || ''
+            url: 'https://api.stability.ai/v1/generation',
+            key: ''
         },
         midjourney: {
-            url: process.env.MIDJOURNEY_API_URL || 'https://api.midjourney.com/v2',
-            key: process.env.MIDJOURNEY_API_KEY || ''
+            url: 'https://api.midjourney.com/v2',
+            key: ''
         }
     },
 
     // Default generation parameters
     defaultParams: {
-        model: process.env.DEFAULT_MODEL || 'z-image-turbo',
-        width: parseInt(process.env.DEFAULT_WIDTH) || 1024,
-        height: parseInt(process.env.DEFAULT_HEIGHT) || 1024,
-        steps: parseInt(process.env.DEFAULT_STEPS) || 8,
-        guidance: parseFloat(process.env.DEFAULT_GUIDANCE) || 3.0,
+        model: 'Qwen/Qwen2-VL-72B-Instruct',
+        width: 1024,
+        height: 1024,
+        steps: 20,
+        guidance: 7.5,
         count: 1
     },
 
@@ -42,7 +42,7 @@ const CONFIG = {
     activeApi: 'primary',
 
     // Maximum concurrent requests
-    maxConcurrentRequests: parseInt(process.env.MAX_CONCURRENT_REQUESTS) || 5
+    maxConcurrentRequests: 5
 };
 
 // Export for use in other modules

@@ -5,7 +5,7 @@ class ImageGeneratorAPI {
         // 这里为了演示直接使用
         this.apiKey = 'sk-gffvslaiesaueihepijwvpzrcblkxxgtlgvkgakpjcvvuzqt';
         this.baseUrl = 'https://api.siliconflow.cn/v1/images/generations';
-        this.model = 'Qwen/Qwen-Image-Edit-2509';
+        this.model = 'Kwai-Kolors/Kolors';
     }
 
     // 生成图像

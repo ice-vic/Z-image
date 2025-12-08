@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 速率限制说明</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(10, 10, 10, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .warning {
+            background: rgba(255, 100, 0, 0.1);
+            border: 1px solid #ff6400;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .center {
+            text-align: center;
+            margin: 30px 0;
+        }
+        a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API 速率限制说明</h1>
+
+        <div class="warning">
+            <h3>⚠️ 当前遇到的问题</h3>
+            <p><strong>错误信息：</strong> 429 Too Many Requests</p>
+            <p><strong>原因：</strong> IP 每分钟请求次数（IPM）已达上限</p>
+        </div>
+
+        <div class="success">
+            <h3>✅ 已采取的措施</h3>
+            <p>1. 添加了 <code>3秒</code> 的请求间隔</p>
+            <p>2. 防止重复点击和频繁请求</p>
+            <p>3. 优化了错误处理提示</p>
+        </div>
+
+        <h2>建议</h2>
+        <ul>
+            <li><strong>等待冷却：</strong>错误出现后请等待 1-2 分钟再尝试</li>
+            <li><strong>合理使用：</strong>每次生成后等待结果显示再进行下一次操作</li>
+li><strong>避免刷新：</strong>不要频繁刷新页面，这会发送重复请求</li>
+        </ul>
+
+        <div class="center">
+            <a href="index-fixed.html">返回图像生成页面</a>
+        </div>
+
+        <div style="margin-top: 30px; font-size: 12px; color: #666;">
+            <p>当前使用模型：Kwai-Kolors/Kolors</p>
+            <p>API提供商：SiliconFlow</p>
+        </div>
+    </div>
+</body>
+</html>

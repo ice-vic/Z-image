@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-Image - AI图像生成测试</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(10, 10, 10, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        button {
+            background: linear-gradient(45deg, #00a6ff, #00d4ff);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 166, 255, 0.4);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            min-height: 100px;
+        }
+        .error {
+            color: #ff4444;
+        }
+        .success {
+            color: #00ff00;
+        }
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Z-Image 图像生成测试</h1>
+        <p>输入提示词生成图像</p>
+
+        <div>
+            <label for="prompt">提示词:</label>
+            <textarea id="prompt" rows="3" placeholder="一只可爱的猫在花园里玩耍"></textarea>
+        </div>
+
+        <div>
+            <label for="negative">反向提示词:</label>
+            <input type="text" id="negative" placeholder="模糊, 低质量">
+        </div>
+
+        <button onclick="generateImage()" id="generateBtn">生成图像</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 简化的API配置
+        const API_CONFIG = {
+            url: 'https://api.siliconflow.cn/v1/images/generations',
+            key: 'sk-gffvslaiesaueihepijwvpzrcblkxxgtlgvkgakpjcvvuzqt',
+            model: 'Kwai-Kolors/Kolors'
+        };
+
+        // 防抖动 - 防止频繁点击
+        let isGenerating = false;
+        let lastGenerateTime = 0;
+        const MIN_INTERVAL = 3000; // 最小间隔3秒
+
+        async function generateImage() {
+            const prompt = document.getElementById('prompt').value;
+            const negative = document.getElementById('negative').value;
+            const btn = document.getElementById('generateBtn');
+            const result = document.getElementById('result');
+
+            if (!prompt) {
+                alert('请输入提示词');
+                return;
+            }
+
+            // 防止频繁请求
+            const now = Date.now();
+            if (isGenerating || (now - lastGenerateTime < MIN_INTERVAL)) {
+                result.innerHTML = '<p class="error">请稍候片刻再尝试生成...</p>';
+                return;
+            }
+
+            isGenerating = true;
+            lastGenerateTime = now;
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+            result.innerHTML = '<p class="success">正在生成图像，请稍候...</p>';
+
+            try {
+                const response = await fetch(API_CONFIG.url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_CONFIG.key}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: API_CONFIG.model,
+                        prompt: prompt,
+                        negative_prompt: negative,
+                        image_size: '1024x1024',
+                        num_inference_steps: 20,
+                        guidance_scale: 7.5
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '生成失败');
+                }
+
+                const data = await response.json();
+
+                if (data.data && data.data.length > 0) {
+                    const imageUrl = data.data[0].url;
+                    result.innerHTML = `
+                        <p class="success">生成成功！</p>
+                        <img src="${imageUrl}" alt="Generated Image" />
+                    `;
+                } else {
+                    throw new Error('未获取到生成的图像');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                result.innerHTML = `<p class="error">错误: ${error.message}</p>`;
+            } finally {
+                isGenerating = false;
+                btn.disabled = false;
+                btn.textContent = '生成图像';
+            }
+        }
+    </script>
+</body>
+</html>
