@@ -1503,23 +1503,55 @@
         }
 
         // Add animation on scroll
-        const observerOptions = {
-            threshold: 0.3,  // 提高到30%，让元素更多进入视口再触发
-            rootMargin: '0px 0px -150px 0px'  // 增加负边距，延迟触发
+        // 为图像生成器下方的第一个section(#intro)创建特殊的observer
+        const introSection = document.getElementById('intro');
+        const introOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -400px 0px'  // 确保#intro区域完全经过图像生成器后才显示
         };
 
-        const observer = new IntersectionObserver((entries) => {
+        const introObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const cards = entry.target.querySelectorAll('.card');
+                    cards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.style.animation = 'fadeInUp 0.6s ease both';
+                            card.classList.add('animated');
+                        }, index * 100); // 依次显示动画
+                    });
+                    introObserver.unobserve(entry.target);
+                }
+            });
+        }, introOptions);
+
+        if (introSection) {
+            introObserver.observe(introSection);
+        }
+
+        // 为其他section创建普通的observer
+        const otherOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const otherObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                    // 跳过#intro section，因为它已经被特殊处理
+                    if (entry.target.id === 'intro') return;
+
                     entry.target.style.animation = 'fadeInUp 0.6s ease both';
                     entry.target.classList.add('animated');
                 }
             });
-        }, observerOptions);
+        }, otherOptions);
 
-        // Observe all cards and sections
+        // 观察除了#intro内的所有其他元素
         document.querySelectorAll('.card, .tech-item, .feature-box, .prompt-card').forEach(el => {
-            observer.observe(el);
+            // 如果元素在#intro内，跳过
+            if (introSection && introSection.contains(el)) return;
+            otherObserver.observe(el);
         });
 
         // Add parallax effect to hero section
