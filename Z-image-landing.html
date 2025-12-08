@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z-image：6B参数挑战20B，阿里开源AI生图黑马全解析</title>
+    <title>Z-image：6B参数挑战20B，开源AI生图黑马全解析</title>
     <style>
         * {
             margin: 0;
@@ -14,21 +14,50 @@
         :root {
             --bg-primary: #000000;
             --bg-secondary: #0a0a0a;
+            --bg-tertiary: #0f0f0f;
             --text-primary: #ffffff;
             --text-secondary: #b0b0b0;
             --accent-blue: #00a6ff;
             --accent-blue-light: #00d4ff;
-            --accent-blue-glow: rgba(0, 166, 255, 0.5);
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-blue-dark: #0080cc;
+            --accent-glow: rgba(0, 166, 255, 0.5);
+            --accent-glow-strong: rgba(0, 166, 255, 0.8);
+            --card-bg: rgba(0, 166, 255, 0.03);
+            --card-bg-hover: rgba(0, 166, 255, 0.06);
+            --border-color: rgba(0, 166, 255, 0.2);
+            --success-color: #00ff88;
+            --warning-color: #ffaa00;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(0, 166, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(0, 166, 255, 0.03) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(1deg); }
+            66% { transform: translate(-20px, 20px) rotate(-1deg); }
         }
 
         .container {
@@ -39,12 +68,14 @@
 
         /* Header */
         header {
-            padding: 2rem 0;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            position: sticky;
+            padding: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            position: fixed;
             top: 0;
-            z-index: 100;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
         }
 
         nav {
@@ -54,10 +85,12 @@
         }
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
-            color: var(--accent-blue);
-            text-shadow: 0 0 20px var(--accent-blue-glow);
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px var(--accent-glow);
         }
 
         .nav-links {
@@ -69,18 +102,35 @@
         .nav-links a {
             color: var(--text-secondary);
             text-decoration: none;
-            transition: color 0.3s;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-light));
+            transition: width 0.3s ease;
         }
 
         .nav-links a:hover {
             color: var(--accent-blue);
-            text-shadow: 0 0 10px var(--accent-blue-glow);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
         }
 
         /* Hero Section */
         .hero {
-            padding: 6rem 0;
+            padding: 8rem 0 5rem;
             text-align: center;
+            position: relative;
         }
 
         .hero h1 {
@@ -89,21 +139,23 @@
             background: linear-gradient(45deg, var(--text-primary), var(--accent-blue), var(--accent-blue-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: fadeInUp 1s ease, glow 2s ease-in-out infinite alternate;
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
         .hero-subtitle {
             font-size: 1.3rem;
             color: var(--text-secondary);
             margin-bottom: 3rem;
-            animation: fadeInUp 1s ease 0.2s both;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .cta-buttons {
             display: flex;
             gap: 1.5rem;
             justify-content: center;
-            animation: fadeInUp 1s ease 0.4s both;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -112,50 +164,50 @@
             border-radius: 50px;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-primary {
             background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
             color: white;
-            box-shadow: 0 10px 30px var(--accent-blue-glow);
-            transition: all 0.3s;
+            box-shadow: 0 10px 30px var(--accent-glow);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px var(--accent-blue-glow), 0 0 30px var(--accent-blue);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--accent-blue);
-            border: 2px solid var(--accent-blue);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-secondary::before {
+        .btn-primary::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent-blue-glow), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             transition: left 0.5s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px var(--accent-glow-strong), 0 0 50px var(--accent-blue);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
         }
 
         .btn-secondary:hover {
             background: var(--accent-blue);
             color: white;
-            box-shadow: 0 0 20px var(--accent-blue-glow);
-        }
-
-        .btn-secondary:hover::before {
-            left: 100%;
+            box-shadow: 0 0 30px var(--accent-glow);
+            transform: translateY(-2px);
         }
 
         /* Sections */
@@ -167,7 +219,9 @@
             font-size: 2.5rem;
             text-align: center;
             margin-bottom: 3rem;
-            color: var(--text-primary);
+            background: linear-gradient(45deg, var(--text-primary), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         /* Cards */
@@ -178,8 +232,9 @@
             border-radius: 20px;
             padding: 2.5rem;
             margin-bottom: 2rem;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             position: relative;
+            overflow: hidden;
         }
 
         .card::before {
@@ -189,209 +244,253 @@
             left: -2px;
             right: -2px;
             bottom: -2px;
-            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light), var(--accent-blue));
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light), var(--accent-blue-dark));
             border-radius: 20px;
             opacity: 0;
             z-index: -1;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
             filter: blur(10px);
         }
 
         .card:hover {
             transform: translateY(-5px);
-            border-color: var(--accent-blue);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px var(--accent-blue-glow);
+            background: var(--card-bg-hover);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px var(--accent-glow);
         }
 
         .card:hover::before {
-            opacity: 0.5;
+            opacity: 0.3;
         }
 
         .card h3 {
             color: var(--accent-blue);
             font-size: 1.5rem;
             margin-bottom: 1rem;
-            text-shadow: 0 0 10px var(--accent-blue-glow);
+            text-shadow: 0 0 10px var(--accent-glow);
         }
 
-        /* Model Variants */
-        .variants-grid {
+        /* Grid Layouts */
+        .grid-3 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
             margin-top: 3rem;
         }
 
-        .variant-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 15px;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .variant-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-light));
-        }
-
-        .variant-card.available::before {
-            background: linear-gradient(90deg, #4caf50, #66bb6a);
-        }
-
-        .variant-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 30px var(--accent-blue-glow);
-            border-color: var(--accent-blue);
-        }
-
-        .variant-title {
-            font-size: 1.3rem;
-            color: var(--accent-blue);
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 5px var(--accent-blue-glow);
-        }
-
-        .variant-status {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            background: rgba(0, 166, 255, 0.2);
-            color: var(--accent-blue);
-            border: 1px solid var(--accent-blue);
-        }
-
-        .variant-status.available {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4caf50;
-        }
-
-        /* Features */
-        .features-grid {
+        .tech-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
             margin-top: 3rem;
         }
 
-        .feature-item {
+        .tech-item {
             text-align: center;
-            padding: 1.5rem;
-        }
-
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 1rem;
-            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            padding: 2rem;
+            background: var(--card-bg);
             border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 5px 15px var(--accent-blue-glow);
-            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
 
-        .feature-item:hover .feature-icon {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 8px 25px var(--accent-blue-glow), 0 0 20px var(--accent-blue);
+        .tech-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px var(--accent-glow);
         }
 
-        /* Tech Specs */
-        .tech-specs {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            padding: 3rem;
-            margin: 2rem 0;
-        }
-
-        .spec-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .spec-item {
-            text-align: center;
-        }
-
-        .spec-value {
-            font-size: 2.5rem;
+        .tech-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
             background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .tech-value {
+            font-size: 2rem;
             font-weight: bold;
-            text-shadow: 0 0 20px var(--accent-blue-glow);
+            color: var(--accent-blue-light);
+            margin-bottom: 0.5rem;
         }
 
-        .spec-label {
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-        }
-
-        /* User Reviews */
-        .review {
-            background: var(--card-bg);
-            border-left: 4px solid var(--accent-blue);
-            padding: 1.5rem;
-            margin: 1rem 0;
-            border-radius: 0 10px 10px 0;
-            transition: all 0.3s;
+        /* Feature Boxes */
+        .feature-box {
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 166, 255, 0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
             position: relative;
             overflow: hidden;
         }
 
-        .review::before {
+        .feature-box::after {
             content: '';
             position: absolute;
-            left: -100%;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .feature-box:hover::after {
+            opacity: 0.1;
+        }
+
+        .feature-title {
+            color: var(--accent-blue);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-block::before {
+            content: 'PROMPT';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: var(--accent-blue);
+            opacity: 0.5;
+        }
+
+        .code-block code {
+            color: var(--accent-blue-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Prompt Examples */
+        .prompt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .prompt-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .prompt-card::before {
+            content: '';
+            position: absolute;
             top: 0;
-            width: 100%;
+            left: 0;
+            width: 4px;
             height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent-blue-glow), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(to bottom, var(--accent-blue), var(--accent-blue-light));
+            border-radius: 15px 0 0 15px;
         }
 
-        .review:hover {
-            box-shadow: 0 5px 20px var(--accent-blue-glow);
+        .prompt-card:hover {
+            transform: translateX(5px);
+            box-shadow: -5px 5px 20px var(--accent-glow);
         }
 
-        .review:hover::before {
-            left: 100%;
+        .prompt-title {
+            color: var(--accent-blue);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
         }
 
-        .review.positive {
-            border-left-color: #4caf50;
+        .prompt-examples {
+            margin-top: 1rem;
+            padding-left: 1.5rem;
         }
 
-        .review.positive::before {
-            background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.2), transparent);
+        .prompt-examples li {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            list-style-type: none;
+            position: relative;
         }
 
-        .review.negative {
-            border-left-color: #f44336;
+        .prompt-examples li::before {
+            content: '▸';
+            position: absolute;
+            left: -1.2rem;
+            color: var(--accent-blue);
         }
 
-        .review.negative::before {
-            background: linear-gradient(90deg, transparent, rgba(244, 67, 54, 0.2), transparent);
+        /* Tips Section */
+        .tips-container {
+            background: linear-gradient(135deg, rgba(0, 166, 255, 0.1), rgba(0, 212, 255, 0.05));
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 3rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tip-item {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .tip-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px var(--accent-glow);
+            transition: all 0.3s ease;
+        }
+
+        .tip-item:hover .tip-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px var(--accent-glow);
         }
 
         /* FAQ */
         .faq-item {
             background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             margin-bottom: 1rem;
             overflow: hidden;
@@ -403,52 +502,70 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
         }
 
         .faq-question:hover {
-            background: rgba(0, 166, 255, 0.1);
-            box-shadow: 0 0 15px var(--accent-blue-glow);
+            background: rgba(0, 166, 255, 0.05);
+            padding-left: 2rem;
+        }
+
+        .faq-question h3 {
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+        }
+
+        .faq-toggle {
+            font-size: 1.5rem;
+            color: var(--accent-blue);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
         }
 
         .faq-answer {
-            padding: 0 1.5rem;
             max-height: 0;
             overflow: hidden;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         .faq-item.active .faq-answer {
-            padding: 1.5rem;
             max-height: 500px;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        /* Highlights */
+        .highlight {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px var(--accent-glow);
         }
 
         /* Footer */
         footer {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.8);
             padding: 3rem 0 2rem;
             text-align: center;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer-links a:hover {
-            color: var(--accent-blue);
-            text-shadow: 0 0 5px var(--accent-blue-glow);
+            border-top: 1px solid var(--border-color);
         }
 
         /* Animations */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 20px var(--accent-glow);
+            }
+            to {
+                text-shadow: 0 0 30px var(--accent-blue), 0 0 40px var(--accent-glow);
+            }
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -460,13 +577,8 @@
             }
         }
 
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 10px var(--accent-blue-glow);
-            }
-            to {
-                text-shadow: 0 0 20px var(--accent-blue), 0 0 30px var(--accent-blue-glow);
-            }
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
         }
 
         /* Responsive */
@@ -487,6 +599,12 @@
             .btn {
                 width: 250px;
             }
+
+            .prompt-grid,
+            .grid-3,
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -496,10 +614,9 @@
         <nav class="container">
             <div class="logo">Z-image 造相</div>
             <ul class="nav-links">
-                <li><a href="#features">核心特性</a></li>
+                <li><a href="#intro">产品介绍</a></li>
                 <li><a href="#tech">技术解析</a></li>
                 <li><a href="#tutorial">实战教程</a></li>
-                <li><a href="#reviews">用户评价</a></li>
                 <li><a href="#faq">常见问题</a></li>
             </ul>
         </nav>
@@ -509,239 +626,236 @@
     <section class="hero">
         <div class="container">
             <h1>Z-image：6B参数挑战20B</h1>
-            <p class="hero-subtitle">阿里开源AI生图黑马，用"小而美"重塑技术格局</p>
+            <p class="hero-subtitle">开源AI生图黑马，用"小而美"重塑技术格局。当其他AI需要高端服务器时，你的RTX 3060就能流畅生成高质量图像。</p>
             <div class="cta-buttons">
-                <a href="https://github.com/Tongyi-MAI/Z-Image" class="btn btn-primary">立即下载</a>
-                <a href="https://huggingface.co/Tongyi-MAI" class="btn btn-secondary">在线体验</a>
+                <button class="btn btn-primary" onclick="scrollToSection('intro')">了解更多</button>
+                <button class="btn btn-secondary" onclick="scrollToSection('tutorial')">查看教程</button>
             </div>
         </div>
     </section>
 
     <!-- Introduction -->
-    <section class="container">
-        <div class="card">
-            <h2>AI图像生成的新纪元</h2>
-            <p>当整个行业都在为参数量竞赛疯狂时，阿里巴巴通义实验室却走了一条不一样的路。2025年11月，他们开源了仅有6B参数的Z-image（中文名"造相"），却实现了对标20B以上参数量闭源旗舰模型的生图效果。这个"小而美"的模型，正在掀起一场从"大即是美"到"精即是美"的技术革命。</p>
-            <br>
-            <p>想象一下，当其他AI模型需要高端服务器才能运行时，你的RTX 3060就能流畅生成1024×1024的高质量图像；当对手需要20步推理才能出图时，Z-image仅需8步就能在2.3秒内完成。这不是科幻，而是Z-image带来的现实。</p>
-        </div>
-    </section>
+    <section id="intro" class="container">
+        <h2 class="section-title">产品定位与核心亮点</h2>
 
-    <!-- Model Variants -->
-    <section id="features" class="container">
-        <h2 class="section-title">三大变体模型</h2>
-        <div class="variants-grid">
-            <div class="variant-card available">
-                <span class="variant-status available">已开源</span>
-                <h3 class="variant-title">Z-Image-Turbo</h3>
-                <p>高效推理版，专为追求速度的用户设计</p>
+        <div class="card fade-in">
+            <h3>什么是Z-image？</h3>
+            <p>Z-image是于2025年11月开源的高效图像生成基础模型，核心定位是"轻量且高性能"。它采用Apache 2.0开源许可，个人和企业可自由使用、修改并二次分发，搭配官方提供的技术报告和快速入门代码，方便社区进行二次开发。</p>
+        </div>
+
+        <div class="grid-3">
+            <div class="card fade-in">
+                <h3 style="color: var(--success-color);">✅ Z-Image-Turbo</h3>
+                <p><strong>高效推理版（已开源）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
-                    <li>仅需8步采样，实现亚秒级推理</li>
+                    <li>仅需8步采样，亚秒级推理</li>
                     <li>显存占用≤16GB</li>
                     <li>擅长照片级生成与中英文字渲染</li>
                     <li>AI Arena全球第四、开源第一</li>
                 </ul>
             </div>
-            <div class="variant-card">
-                <span class="variant-status">待发布</span>
-                <h3 class="variant-title">Z-Image-Base</h3>
-                <p>基础开发版，支持垂直领域微调</p>
+
+            <div class="card fade-in">
+                <h3 style="color: var(--warning-color);">🔄 Z-Image-Base</h3>
+                <p><strong>基础开发版（待发布）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
                     <li>保留6B全参数</li>
-                    <li>适合电商商品图、课件插图定制</li>
+                    <li>支持垂直领域数据微调</li>
                     <li>全参数微调能力</li>
-                    <li>为专业开发者提供定制空间</li>
+                    <li>打造专属模型</li>
                 </ul>
             </div>
-            <div class="variant-card">
-                <span class="variant-status">待发布</span>
-                <h3 class="variant-title">Z-Image-Edit</h3>
-                <p>图像编辑版，自然语言驱动修改</p>
+
+            <div class="card fade-in">
+                <h3 style="color: var(--accent-blue);">✏️ Z-Image-Edit</h3>
+                <p><strong>图像编辑版（待发布）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
-                    <li>换背景、改元素等编辑功能</li>
+                    <li>自然语言驱动的图像修改</li>
+                    <li>换背景、改元素等功能</li>
                     <li>保持原图风格一致性</li>
                     <li>支持复合编辑指令</li>
-                    <li>"让人物微笑+转头+换背景"</li>
                 </ul>
             </div>
         </div>
     </section>
 
-    <!-- Tech Specs -->
-    <section id="tech" class="container">
-        <h2 class="section-title">核心技术突破</h2>
-        <div class="tech-specs">
-            <h3 style="background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2rem; font-size: 1.8rem;">性能基准测试</h3>
-            <div class="spec-grid">
-                <div class="spec-item">
-                    <div class="spec-value">7.2</div>
-                    <div class="spec-label">FID分数<br><small>(越低越好)</small></div>
-                </div>
-                <div class="spec-item">
-                    <div class="spec-value">#4</div>
-                    <div class="spec-label">AI Arena排名<br><small>(全球第四)</small></div>
-                </div>
-                <div class="spec-item">
-                    <div class="spec-value">2.3秒</div>
-                    <div class="spec-label">RTX 4090生成时间<br><small>(1024×1024)</small></div>
-                </div>
-                <div class="spec-item">
-                    <div class="spec-value">13GB</div>
-                    <div class="spec-label">显存占用<br><small>(RTX 4090)</small></div>
-                </div>
+    <!-- Tech Details -->
+    <section id="tech" class="container" style="background: rgba(0,0,0,0.3); border-radius: 30px; padding: 4rem; margin: 3rem 0;">
+        <h2 class="section-title">技术深度解析</h2>
+
+        <div class="tech-grid">
+            <div class="tech-item">
+                <div class="tech-icon">🔬</div>
+                <h3>S³-DiT架构</h3>
+                <p>单流扩散Transformer，将文本、视觉、图像VAE令牌统一处理，突破传统双流架构瓶颈</p>
+            </div>
+
+            <div class="tech-item">
+                <div class="tech-icon">⚡</div>
+                <h3>U-RoPE编码</h3>
+                <p>统一旋转位置编码，完美适配文本和图像的多维位置信息</p>
+            </div>
+
+            <div class="tech-item">
+                <div class="tech-icon">🎯</div>
+                <h3>零初始化门控</h3>
+                <p>保障千层级网络稳定收敛，解决深层网络梯度问题</p>
+            </div>
+
+            <div class="tech-item">
+                <div class="tech-icon">🚀</div>
+                <h3>解耦DMD技术</h3>
+                <p>压缩推理步骤至8步，结合强化学习修补细节，实现速度与质量兼顾</p>
             </div>
         </div>
 
-        <div class="variants-grid" style="margin-top: 3rem;">
-            <div class="card">
-                <h3>S³-DiT单流架构</h3>
-                <p>创新性地采用S³-DiT（Scalable Single-Stream Diffusion Transformer）架构，将文本语义、视觉语义和图像VAE令牌拼接为统一输入流，大幅提升参数利用率。这就是为什么Z-image仅用6B参数就能达到20B+模型效果的核心秘密。</p>
+        <div class="grid-3" style="margin-top: 3rem;">
+            <div class="feature-box">
+                <div class="feature-title">
+                    <span class="feature-icon">💻</span>
+                    硬件需求
+                </div>
+                <p><span class="highlight">RTX 4090</span>：生成1024×1024仅需2.3秒<br>
+                <span class="highlight">RTX 3060</span>：5年前的显卡也能流畅运行<br>
+                对比Flux 2，存储空间节省80%</p>
             </div>
-            <div class="card">
-                <h3>统一旋转位置编码（U-RoPE）</h3>
-                <p>基于李代数so(n)原理，将传统一维RoPE扩展到多维场景，既能适配文本的一维顺序位置信息，又能保留图像在三维空间的几何结构。</p>
+
+            <div class="feature-box">
+                <div class="feature-title">
+                    <span class="feature-icon">📊</span>
+                    性能表现
+                </div>
+                <p><span class="highlight">FID分数：7.2</span>（越低越好）<br>
+                <span class="highlight">AI Arena排名：全球第四</span><br>
+                <span class="highlight">CVTG-2K准确率：0.8671</span></p>
             </div>
-            <div class="card">
-                <h3>解耦DMD技术</h3>
-                <p>通过解耦DMD技术拆分传统分布匹配蒸馏的协同机制，单独优化以压缩推理步骤；再通过DMDR技术引入强化学习，在蒸馏基础上修补图像细节。这就是Turbo版本仅需8步就能生成高质量图像的关键。</p>
+
+            <div class="feature-box">
+                <div class="feature-title">
+                    <span class="feature-icon">🌏</span>
+                    双语优势
+                </div>
+                <p>精准理解"小桥流水人家"等意境<br>
+                处理复杂中英文混合指令<br>
+                突破文字模糊、错字问题</p>
             </div>
         </div>
     </section>
 
     <!-- Use Cases -->
-    <section id="usecases" class="container">
+    <section class="container">
         <h2 class="section-title">应用场景</h2>
-        <div class="features-grid">
-            <div class="feature-item">
-                <div class="feature-icon">👥</div>
-                <h3>个人创作者</h3>
-                <p>宠物拟人化插画<br>卡通故事配图<br>个性化头像生成</p>
+
+        <div class="grid-3">
+            <div class="card fade-in">
+                <h3>👥 个人创作者</h3>
+                <ul style="color: var(--text-secondary);">
+                    <li>宠物拟人化插画</li>
+                    <li>卡通故事配图</li>
+                    <li>个性化头像</li>
+                    <li>手账插图设计</li>
+                </ul>
             </div>
-            <div class="feature-item">
-                <div class="feature-icon">🎨</div>
-                <h3>设计师</h3>
-                <p>国潮海报设计<br>活动宣传图初稿<br>快速创意原型</p>
+
+            <div class="card fade-in">
+                <h3>🎨 职场从业者</h3>
+                <ul style="color: var(--text-secondary);">
+                    <li>自媒体封面图</li>
+                    <li>国潮海报设计</li>
+                    <li>古诗意境可视化</li>
+                    <li>商品展示图</li>
+                </ul>
             </div>
-            <div class="feature-item">
-                <div class="feature-icon">🛍️</div>
-                <h3>电商商家</h3>
-                <p>商品白底图批量生成<br>场景展示图创作<br>降低拍摄成本</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">📚</div>
-                <h3>教育工作者</h3>
-                <p>古诗意境可视化<br>历史场景重现<br>科学概念图解</p>
+
+            <div class="card fade-in">
+                <h3>👨‍💻 技术开发者</h3>
+                <ul style="color: var(--text-secondary);">
+                    <li>垂直领域微调</li>
+                    <li>API服务部署</li>
+                    <li>架构研究</li>
+                    <li>社区贡献</li>
+                </ul>
             </div>
         </div>
     </section>
 
     <!-- Tutorial Section -->
-    <section id="tutorial" class="container">
+    <section id="tutorial" class="container" style="background: linear-gradient(135deg, rgba(0, 166, 255, 0.05), rgba(0, 0, 0, 0.3)); border-radius: 30px; padding: 4rem;">
         <h2 class="section-title">实战教程：热门提示词</h2>
 
-        <div class="variants-grid" style="margin-top: 3rem;">
-            <div class="card">
-                <h3>国风系列</h3>
-                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; margin: 1rem 0;">
-                    <code style="color: var(--accent-blue-light); font-size: 0.9rem;">
-                        国风茶馆的木质招牌，带清晰"茗香"二字，古色古香的建筑，红灯笼...
-                    </code>
+        <div class="prompt-grid">
+            <div class="prompt-card">
+                <h3 class="prompt-title">🏮 国风系列</h3>
+                <div class="code-block">
+                    <code>国风茶馆的木质招牌，带清晰"茗香"二字，古色古香的建筑，红灯笼，竹子装饰，清晨阳光斜射</code>
                 </div>
-                <ul style="color: var(--text-secondary); font-size: 0.9rem;">
-                    <li>• 江南水乡：小桥流水人家，水墨画风格</li>
-                    <li>• 故宫雪景：红墙黄瓦，白雪皑皑</li>
-                    <li>• 古典园林：诗情画意，电影级画质</li>
+                <ul class="prompt-examples">
+                    <li>江南水乡：小桥流水人家，水墨画风格</li>
+                    <li>故宫雪景：红墙黄瓦，白雪皑皑</li>
+                    <li>古典园林：诗情画意，电影级画质</li>
                 </ul>
             </div>
 
-            <div class="card">
-                <h3>人像写真</h3>
-                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; margin: 1rem 0;">
-                    <code style="color: var(--accent-blue-light); font-size: 0.9rem;">
-                        咖啡馆门口的年轻亚洲女性，米色毛衣，午后阳光，85mm镜头...
-                    </code>
+            <div class="prompt-card">
+                <h3 class="prompt-title">📸 人像写真</h3>
+                <div class="code-block">
+                    <code>咖啡馆门口的年轻亚洲女性，穿着米色毛衣，温柔的微笑，玻璃门倒影，午后阳光，85mm镜头</code>
                 </div>
-                <ul style="color: var(--text-secondary); font-size: 0.9rem;">
-                    <li>• 职场精英：商务肖像，摩天大楼背景</li>
-                    <li>• 古风美人：汉服长发，古典园林</li>
-                    <li>• 温柔人像：柔和光线，浅景深</li>
+                <ul class="prompt-examples">
+                    <li>职场精英：商务肖像，摩天大楼背景</li>
+                    <li>古风美人：汉服长发，古典园林</li>
+                    <li>温柔人像：柔和光线，浅景深</li>
                 </ul>
             </div>
 
-            <div class="card">
-                <h3>创意概念</h3>
-                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; margin: 1rem 0;">
-                    <code style="color: var(--accent-blue-light); font-size: 0.9rem;">
-                        赛博朋克城市夜景，霓虹灯广告牌，雨后街道反射...
-                    </code>
+            <div class="prompt-card">
+                <h3 class="prompt-title">🌆 创意概念</h3>
+                <div class="code-block">
+                    <code>赛博朋克风格的城市夜景，霓虹灯广告牌，雨后街道反射，东方元素，未来主义</code>
                 </div>
-                <ul style="color: var(--text-secondary); font-size: 0.9rem;">
-                    <li>• 3D玩具世界：微缩场景，梦幻氛围</li>
-                    <li>• 宇宙探索：宇航员，星空璀璨</li>
-                    <li>• 科技产品：极简风格，蓝色光效</li>
+                <ul class="prompt-examples">
+                    <li>3D玩具世界：微缩场景，梦幻氛围</li>
+                    <li>宇宙探索：宇航员，星空璀璨</li>
+                    <li>科技产品：极简风格，蓝色光效</li>
                 </ul>
             </div>
         </div>
 
-        <div class="card" style="margin-top: 2rem;">
-            <h3>使用技巧</h3>
-            <div class="features-grid" style="margin-top: 1.5rem;">
-                <div class="feature-item">
-                    <div class="feature-icon">💡</div>
+        <div class="tips-container">
+            <h3 style="text-align: center; margin-bottom: 2rem; color: var(--accent-blue);">💡 使用技巧</h3>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <div class="tip-icon">🔤</div>
                     <h4>中英混合</h4>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Z-image擅长处理中英文混合提示，描述更精确</p>
+                    <p>Z-image擅长处理中英文混合提示，描述更精确</p>
                 </div>
-                <div class="feature-item">
-                    <div class="feature-icon">📝</div>
+                <div class="tip-item">
+                    <div class="tip-icon">✍️</div>
                     <h4>文字生成</h4>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem;">明确"清晰文字"、"字体"效果更好</p>
+                    <p>明确"清晰文字"、"字体"效果更好</p>
                 </div>
-                <div class="feature-item">
-                    <div class="feature-icon">⚙️</div>
+                <div class="tip-item">
+                    <div class="tip-icon">⚙️</div>
                     <h4>参数优化</h4>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem;">1024×1024, 8-9步, Guidance 0.0</p>
+                    <p>1024×1024, 8-9步, Guidance 0.0</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- User Reviews -->
-    <section id="reviews" class="container">
-        <h2 class="section-title">用户真实评价</h2>
-
-        <div class="review positive">
-            <h4 style="color: #4caf50;">硬件门槛极低</h4>
-            <p>"哪怕是几年前的RTX 3060这类消费级显卡都能流畅运行，权重文件仅几十GB，对比动辄上百GB的旗舰模型，大幅节省存储资源。而且在ComfyUI中无需安装第三方节点，内置工作流打开模板就能用。"</p>
-        </div>
-
-        <div class="review positive">
-            <h4 style="color: #4caf50;">3D出屏效果惊艳</h4>
-            <p>"它在3D出屏效果上表现甚至优于Flux2，边缘处理和投影更真实，能呈现出'突出屏幕'的触感；生成3DQ风格的微型场景时，立体感和颜色分层清晰，画面干净。"</p>
-        </div>
-
-        <div class="review negative">
-            <h4 style="color: #f44336;">中文嵌字问题</h4>
-            <p>"有用户测试生成珠海五天行程插图时，出现字体错位、字符错误的问题，甚至关键信息写错，完全无法满足行程图、海报等需要精准文字的场景。"</p>
-        </div>
-
-        <div class="review negative">
-            <h4 style="color: #f44336;">复杂场景处理不足</h4>
-            <p>"在二次元题材上更是短板，有测试中它完全无法识别初音未来、洛天依等角色，生成的画面完全不符合需求。"</p>
-        </div>
-    </section>
-
-    <!-- FAQ -->
+    <!-- FAQ Section -->
     <section id="faq" class="container">
         <h2 class="section-title">常见问题解答</h2>
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>哪些硬件能流畅运行Z-Image？显存不够该怎么解决？</span>
-                <span>+</span>
+                <h3>哪些硬件能流畅运行Z-Image？显存不够该怎么解决？</h3>
+                <span class="faq-toggle">+</span>
             </div>
             <div class="faq-answer">
-                <p>消费级的RTX 3060显卡即可流畅运行，RTX 4090生成1024×1024图像仅需2.3秒且显存占用13GB。若出现显存不足：</p>
-                <ul>
+                <p>消费级的RTX 3060显卡即可流畅运行，RTX 4090生成1024×1024图像仅需2.3秒且显存占用13GB。</p>
+                <p>若出现显存不足：</p>
+                <ul style="margin-top: 1rem; padding-left: 1.5rem;">
                     <li>先将分辨率降到384</li>
                     <li>把批量处理数减到1</li>
                     <li>用混合精度、4bit量化压缩显存</li>
@@ -752,23 +866,22 @@
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>本地部署时加载模型失败该怎么办？</span>
-                <span>+</span>
+                <h3>生成的图像出现全黑、细节模糊该怎么处理？</h3>
+                <span class="faq-toggle">+</span>
             </div>
             <div class="faq-answer">
                 <ul>
-                    <li>确认模型权重是从Hugging Face、ModelScope等官方平台获取的，且完整性没问题</li>
-                    <li>检查加载方式和官方README中的要求一致</li>
-                    <li>diffusers建议从源码安装以支持新特性</li>
-                    <li>避免依赖版本不匹配导致加载失败</li>
+                    <li><strong>全黑</strong>：大概率是参数设置不当，建议将分辨率调到1024×1024，采样步数设为8-9</li>
+                    <li><strong>细节模糊</strong>：可在提示词中补充光效、材质等关键词，比如加上"电影风、黄金时段光影"</li>
+                    <li><strong>比例异常</strong>：细化人物描述，明确身高、肢体动作等细节</li>
                 </ul>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>Z-Image用于商业场景有授权限制吗？</span>
-                <span>+</span>
+                <h3>Z-Image用于商业场景有授权限制吗？</h3>
+                <span class="faq-toggle">+</span>
             </div>
             <div class="faq-answer">
                 <p>它采用Apache 2.0开源许可，个人、工作室和企业均可免费商用。二次开发后分发时，需保留版权声明，遵循开源许可的相关规定即可。</p>
@@ -777,27 +890,11 @@
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>生成的图像出现全黑、细节模糊该怎么处理？</span>
-                <span>+</span>
+                <h3>用Z-Image生成的图像涉及版权问题吗？</h3>
+                <span class="faq-toggle">+</span>
             </div>
             <div class="faq-answer">
-                <ul>
-                    <li>全黑大概率是参数设置不当，建议将分辨率调到1024×1024，采样步数设为8-9</li>
-                    <li>细节模糊可在提示词中补充光效、材质等关键词，比如加上"电影风、黄金时段光影"</li>
-                    <li>人物比例异常则需细化人物描述，明确身高、肢体动作等细节</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section style="background: linear-gradient(135deg, rgba(0, 166, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%); padding: 5rem 0; position: relative; overflow: hidden;">
-        <div class="container" style="text-align: center; position: relative; z-index: 1;">
-            <h2 class="section-title" style="background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">立即体验Z-image</h2>
-            <p style="font-size: 1.2rem; margin-bottom: 2rem;">加入AI图像生成的新纪元，用6B参数挑战20B的效果</p>
-            <div class="cta-buttons">
-                <a href="https://github.com/Tongyi-MAI/Z-Image" class="btn btn-primary">GitHub下载</a>
-                <a href="https://huggingface.co/Tongyi-MAI" class="btn btn-secondary">在线试用</a>
+                <p>生成的图像若用于商业用途，要做好内容审核，避开成人内容、侵权元素等违规内容；同时建议保留生成所用的提示词和参数记录，以便应对可能的版权核查。</p>
             </div>
         </div>
     </section>
@@ -805,18 +902,21 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <div class="footer-links">
-                <a href="https://github.com/Tongyi-MAI/Z-Image">GitHub</a>
-                <a href="https://huggingface.co/Tongyi-MAI">Hugging Face</a>
-                <a href="https://modelscope.cn/">魔搭社区</a>
-                <a href="mailto:support@z-image.ai">联系我们</a>
-            </div>
-            <p style="color: var(--text-secondary);">© 2025 Z-image (造相). Powered by Alibaba Tongyi Lab. Apache 2.0 License.</p>
+            <p style="color: var(--text-secondary);">© 2025 Z-image (造相). Apache 2.0 License.</p>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">6B小参数，20B+大能量</p>
         </div>
     </footer>
 
     <script>
-        // FAQ Toggle
+        // Smooth scroll function
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // FAQ toggle
         function toggleFAQ(element) {
             const faqItem = element.parentElement;
             const allItems = document.querySelectorAll('.faq-item');
@@ -825,29 +925,12 @@
             allItems.forEach(item => {
                 if (item !== faqItem && item.classList.contains('active')) {
                     item.classList.remove('active');
-                    item.querySelector('.faq-question span:last-child').textContent = '+';
                 }
             });
 
             // Toggle current item
             faqItem.classList.toggle('active');
-            const sign = element.querySelector('span:last-child');
-            sign.textContent = faqItem.classList.contains('active') ? '−' : '+';
         }
-
-        // Smooth scroll for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
 
         // Add animation on scroll
         const observerOptions = {
@@ -863,8 +946,18 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.card, .variant-card, .feature-item, .review').forEach(el => {
+        // Observe all cards and sections
+        document.querySelectorAll('.card, .tech-item, .feature-box, .prompt-card').forEach(el => {
             observer.observe(el);
+        });
+
+        // Add parallax effect to hero section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
         });
     </script>
 </body>
