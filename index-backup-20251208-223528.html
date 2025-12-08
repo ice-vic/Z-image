@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-Image - 6B参数，8步成画，RTX 3060也能跑的AI生图神器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #0f0f0f;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-blue: #00a6ff;
+            --accent-blue-light: #00d4ff;
+            --accent-blue-dark: #0080cc;
+            --accent-glow: rgba(0, 166, 255, 0.5);
+            --accent-glow-strong: rgba(0, 166, 255, 0.8);
+            --card-bg: rgba(0, 166, 255, 0.03);
+            --card-bg-hover: rgba(0, 166, 255, 0.06);
+            --border-color: rgba(0, 166, 255, 0.2);
+            --success-color: #00ff88;
+            --warning-color: #ffaa00;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(0, 166, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(0, 166, 255, 0.03) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(1deg); }
+            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-light));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--text-primary), var(--accent-blue), var(--accent-blue-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            color: white;
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px var(--accent-glow-strong), 0 0 50px var(--accent-blue);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-blue);
+            color: white;
+            box-shadow: 0 0 30px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Sections */
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, var(--text-primary), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light), var(--accent-blue-dark));
+            border-radius: 20px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+            filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: var(--card-bg-hover);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px var(--accent-glow);
+        }
+
+        .card:hover::before {
+            opacity: 0.3;
+        }
+
+        .card h3 {
+            color: var(--accent-blue);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Grid Layouts */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        .tech-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tech-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-blue-light);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Feature Boxes */
+        .feature-box {
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 166, 255, 0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-box::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .feature-box:hover::after {
+            opacity: 0.1;
+        }
+
+        .feature-title {
+            color: var(--accent-blue);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-block::before {
+            content: 'PROMPT';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: var(--accent-blue);
+            opacity: 0.5;
+        }
+
+        .code-block code {
+            color: var(--accent-blue-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Prompt Examples */
+        .prompt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .prompt-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .prompt-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent-blue), var(--accent-blue-light));
+            border-radius: 15px 0 0 15px;
+        }
+
+        .prompt-card:hover {
+            transform: translateX(5px);
+            box-shadow: -5px 5px 20px var(--accent-glow);
+        }
+
+        .prompt-title {
+            color: var(--accent-blue);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .prompt-examples {
+            margin-top: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .prompt-examples li {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            list-style-type: none;
+            position: relative;
+        }
+
+        .prompt-examples li::before {
+            content: '▸';
+            position: absolute;
+            left: -1.2rem;
+            color: var(--accent-blue);
+        }
+
+        /* Tips Section */
+        .tips-container {
+            background: linear-gradient(135deg, rgba(0, 166, 255, 0.1), rgba(0, 212, 255, 0.05));
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 3rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tip-item {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .tip-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px var(--accent-glow);
+            transition: all 0.3s ease;
+        }
+
+        .tip-item:hover .tip-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        /* FAQ */
+        .faq-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: rgba(0, 166, 255, 0.05);
+            padding-left: 2rem;
+        }
+
+        .faq-question h3 {
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+        }
+
+        .faq-toggle {
+            font-size: 1.5rem;
+            color: var(--accent-blue);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        /* Highlights */
+        .highlight {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 3rem 0 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Animations */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 20px var(--accent-glow);
+            }
+            to {
+                text-shadow: 0 0 30px var(--accent-blue), 0 0 40px var(--accent-glow);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 250px;
+            }
+
+            .prompt-grid,
+            .grid-3,
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Image Generator Styles */
+        .image-generator {
+            margin-top: 4rem;
+            padding: 2rem 0;
+        }
+
+        .generator-container {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Input Panel Styles */
+        .input-panel {
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 166, 255, 0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-light));
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .panel-title {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(0, 166, 255, 0.3);
+        }
+
+        .prompt-examples {
+            margin-top: 0.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .example-tag {
+            background: rgba(0, 166, 255, 0.1);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue-light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .example-tag:hover {
+            background: var(--accent-blue);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 166, 255, 0.4);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .input-group.half {
+            margin-bottom: 1rem;
+        }
+
+        .input-group select,
+        .input-group input {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group select:focus,
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(0, 166, 255, 0.3);
+        }
+
+        .input-group select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Advanced Options */
+        .advanced-options {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+        }
+
+        .options-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            padding: 0.5rem 0;
+            transition: color 0.3s ease;
+        }
+
+        .options-header:hover {
+            color: var(--accent-blue-light);
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .options-content {
+            margin-top: 1rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            margin: 0.5rem 0;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: var(--accent-blue-light);
+        }
+
+        .slider-value {
+            color: var(--accent-blue-light);
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+
+        /* Generate Button */
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            border: none;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .generate-btn:hover::before {
+            width: 600px;
+            height: 600px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Output Panel Styles */
+        .output-panel {
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 166, 255, 0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .output-header h3 {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+        }
+
+        .output-status {
+            color: var(--accent-blue-light);
+            font-size: 0.9rem;
+            padding: 0.3rem 0.8rem;
+            background: rgba(0, 166, 255, 0.1);
+            border-radius: 20px;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            min-height: 400px;
+        }
+
+        .image-placeholder {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: var(--text-secondary);
+        }
+
+        .placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .generated-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .generated-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 166, 255, 0.3);
+        }
+
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text p {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-light));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Image Actions */
+        .image-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.4rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--accent-blue);
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .generator-container {
+                grid-template-columns: 400px 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .generator-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .image-placeholder {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .input-panel,
+            .output-panel {
+                padding: 1.5rem;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .prompt-examples {
+                flex-direction: column;
+            }
+
+            .example-tag {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">Z-image 造相</div>
+            <ul class="nav-links">
+                <li><a href="#intro">产品介绍</a></li>
+                <li><a href="#tech">技术解析</a></li>
+                <li><a href="#tutorial">实战教程</a></li>
+                <li><a href="#faq">常见问题</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Z-Image - 6B参数，8步成画</h1>
+            <p class="hero-subtitle">AI生图黑马，用"小而美"重塑技术格局。当其他AI需要高端服务器时，你的RTX 3060就能流畅生成高质量图像。</p>
+            <div class="cta-buttons">
+                <button class="btn btn-primary" onclick="scrollToSection('intro')">了解更多</button>
+                <button class="btn btn-secondary" onclick="scrollToSection('tutorial')">查看教程</button>
+            </div>
+        </div>
+
+        <!-- Image Generator Section -->
+        <div class="image-generator">
+            <div class="generator-container">
+                <!-- Input Panel -->
+                <div class="input-panel">
+                    <h3 class="panel-title">🎨 图像生成器</h3>
+
+                    <div class="input-group">
+                        <label for="prompt">提示词</label>
+                        <textarea id="prompt" placeholder="输入您想要生成的图像描述，支持中英文...&#10;例如：一只可爱的熊猫在竹林中玩耍，阳光透过竹叶洒下"></textarea>
+                        <div class="prompt-examples">
+                            <span class="example-tag" onclick="setPrompt('国风茶馆的木质招牌，带清晰&apos;茗香&apos;二字，古色古香的建筑，红灯笼，竹子装饰，清晨阳光斜射，写实风格，8K')">国风茶馆</span>
+                            <span class="example-tag" onclick="setPrompt('赛博朋克风格的城市夜景，霓虹灯广告牌，雨后街道反射，东方元素，未来主义，高楼林立，紫色和蓝色调')">赛博朋克</span>
+                            <span class="example-tag" onclick="setPrompt('咖啡馆门口的年轻亚洲女性，穿着米色毛衣，温柔的微笑，玻璃门倒影，午后阳光，柔和光线，浅景深')">人像写真</span>
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group half">
+                            <label for="width">图像尺寸</label>
+                            <select id="width">
+                                <option value="512">512×512</option>
+                                <option value="768">768×768</option>
+                                <option value="1024" selected>1024×1024</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group half">
+                            <label for="count">生成数量</label>
+                            <select id="count">
+                                <option value="1" selected>1张</option>
+                                <option value="2">2张</option>
+                                <option value="4">4张</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="style">风格预设</label>
+                        <select id="style">
+                            <option value="realistic">写实风格</option>
+                            <option value="anime">动漫风格</option>
+                            <option value="guofeng">国风风格</option>
+                            <option value="cyberpunk">赛博朋克</option>
+                            <option value="oil-painting">油画风格</option>
+                            <option value="watercolor">水彩风格</option>
+                        </select>
+                    </div>
+
+                    <div class="advanced-options">
+                        <div class="options-header" onclick="toggleAdvanced()">
+                            <span>高级选项</span>
+                            <span class="toggle-icon" id="advancedToggle">▼</span>
+                        </div>
+                        <div class="options-content" id="advancedContent" style="display: none;">
+                            <div class="input-row">
+                                <div class="input-group half">
+                                    <label for="seed">Seed值</label>
+                                    <input type="number" id="seed" placeholder="随机" min="0" max="999999999">
+                                </div>
+                                <div class="input-group half">
+                                    <label for="steps">采样步数</label>
+                                    <input type="range" id="steps" min="1" max="20" value="8" class="slider">
+                                    <span class="slider-value">8</span>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label for="guidance">Guidance Scale</label>
+                                <input type="range" id="guidance" min="0" max="10" value="3" step="0.1" class="slider">
+                                <span class="slider-value">3.0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="generate-btn" onclick="generateImage()" id="generateBtn">
+                        <span class="btn-icon">✨</span>
+                        <span class="btn-text">生成图像</span>
+                    </button>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="output-panel">
+                    <div class="output-header">
+                        <h3>生成结果</h3>
+                        <div class="output-status" id="outputStatus">准备就绪</div>
+                    </div>
+
+                    <div class="image-gallery" id="imageGallery">
+                        <!-- Default placeholder images -->
+                        <div class="image-placeholder">
+                            <div class="placeholder-icon">🖼️</div>
+                            <p>输入提示词开始生成</p>
+                        </div>
+                    </div>
+
+                    <!-- Loading state (hidden by default) -->
+                    <div class="loading-state" id="loadingState" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">
+                            <p>正在生成图像，请稍候...</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="progress-text" id="progressText">0%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction -->
+    <section id="intro" class="container">
+        <h2 class="section-title">产品定位与核心亮点</h2>
+
+        <div class="card fade-in">
+            <h3>什么是Z-image？</h3>
+            <p>Z-image是于2025年11月发布的高效图像生成基础模型，核心定位是"轻量且高性能"。个人和企业可自由使用、修改并二次分发，搭配官方提供的技术报告和快速入门代码，方便开发者进行二次开发。</p>
+        </div>
+
+        <div class="grid-3">
+            <div class="card fade-in">
+                <h3 style="color: var(--success-color);">✅ Z-Image-Turbo</h3>
+                <p><strong>高效推理版（已发布）</strong></p>
+                <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                    <li>仅需8步采样，亚秒级推理</li>
+                    <li>显存占用≤16GB</li>
+                    <li>擅长照片级生成与中英文字渲染</li>
+                    <li>AI Arena全球第四</li>
+                </ul>
+            </div>
+
+            <div class="card fade-in">
+                <h3 style="color: var(--warning-color);">🔄 Z-Image-Base</h3>
+                <p><strong>基础开发版（待发布）</strong></p>
+                <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                    <li>保留6B全参数</li>
+                    <li>支持垂直领域数据微调</li>
+                    <li>全参数微调能力</li>
+                    <li>打造专属模型</li>
+                </ul>
+            </div>
+
+            <div class="card fade-in">
+                <h3 style="color: var(--accent-blue);">✏️ Z-Image-Edit</h3>
+                <p><strong>图像编辑版（待发布）</strong></p>
+                <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                    <li>自然语言驱动的图像修改</li>
+                    <li>换背景、改元素等功能</li>
+                    <li>保持原图风格一致性</li>
+                    <li>支持复合编辑指令</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Details -->
+    <section id="tech" class="container" style="background: rgba(0,0,0,0.3); border-radius: 30px; padding: 4rem; margin: 3rem 0;">
+        <h2 class="section-title">技术深度解析</h2>
+
+        <div class="tech-grid">
+            <div class="tech-item">
+                <div class="tech-icon">🔬</div>
+                <h3>S³-DiT架构</h3>
+                <p>单流扩散Transformer，将文本、视觉、图像VAE令牌统一处理，突破传统双流架构瓶颈</p>
+            </div>
+
+            <div class="tech-item">
+                <div class="tech-icon">⚡</div>
+                <h3>U-RoPE编码</h3>
+                <p>统一旋转位置编码，完美适配文本和图像的多维位置信息</p>
+            </div>
+
+            <div class="tech-item">
+                <div class="tech-icon">🎯</div>
+                <h3>零初始化门控</h3>
+                <p>保障千层级网络稳定收敛，解决深层网络梯度问题</p>
+            </div>
+
+            <div class="tech-item">
+                <div class="tech-icon">🚀</div>
+                <h3>解耦DMD技术</h3>
+                <p>压缩推理步骤至8步，结合强化学习修补细节，实现速度与质量兼顾</p>
+            </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 3rem;">
+            <div class="feature-box">
+                <div class="feature-title">
+                    <span class="feature-icon">💻</span>
+                    硬件需求
+                </div>
+                <p><span class="highlight">RTX 4090</span>：生成1024×1024仅需2.3秒<br>
+                <span class="highlight">RTX 3060</span>：5年前的显卡也能流畅运行<br>
+                对比Flux 2，存储空间节省80%</p>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-title">
+                    <span class="feature-icon">📊</span>
+                    性能表现
+                </div>
+                <p><span class="highlight">FID分数：7.2</span>（越低越好）<br>
+                <span class="highlight">AI Arena排名：全球第四</span><br>
+                <span class="highlight">CVTG-2K准确率：0.8671</span></p>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-title">
+                    <span class="feature-icon">🌏</span>
+                    双语优势
+                </div>
+                <p>精准理解"小桥流水人家"等意境<br>
+                处理复杂中英文混合指令<br>
+                突破文字模糊、错字问题</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="container">
+        <h2 class="section-title">应用场景</h2>
+
+        <div class="grid-3">
+            <div class="card fade-in">
+                <h3>👥 个人创作者</h3>
+                <ul style="color: var(--text-secondary);">
+                    <li>宠物拟人化插画</li>
+                    <li>卡通故事配图</li>
+                    <li>个性化头像</li>
+                    <li>手账插图设计</li>
+                </ul>
+            </div>
+
+            <div class="card fade-in">
+                <h3>🎨 职场从业者</h3>
+                <ul style="color: var(--text-secondary);">
+                    <li>自媒体封面图</li>
+                    <li>国潮海报设计</li>
+                    <li>古诗意境可视化</li>
+                    <li>商品展示图</li>
+                </ul>
+            </div>
+
+            <div class="card fade-in">
+                <h3>👨‍💻 技术开发者</h3>
+                <ul style="color: var(--text-secondary);">
+                    <li>垂直领域微调</li>
+                    <li>API服务部署</li>
+                    <li>架构研究</li>
+                    <li>社区贡献</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tutorial Section -->
+    <section id="tutorial" class="container" style="background: linear-gradient(135deg, rgba(0, 166, 255, 0.05), rgba(0, 0, 0, 0.3)); border-radius: 30px; padding: 4rem;">
+        <h2 class="section-title">实战教程：热门提示词</h2>
+
+        <div class="prompt-grid">
+            <div class="prompt-card">
+                <h3 class="prompt-title">🏮 国风系列</h3>
+                <div class="code-block">
+                    <code>国风茶馆的木质招牌，带清晰"茗香"二字，古色古香的建筑，红灯笼，竹子装饰，清晨阳光斜射</code>
+                </div>
+                <ul class="prompt-examples">
+                    <li>江南水乡：小桥流水人家，水墨画风格</li>
+                    <li>故宫雪景：红墙黄瓦，白雪皑皑</li>
+                    <li>古典园林：诗情画意，电影级画质</li>
+                </ul>
+            </div>
+
+            <div class="prompt-card">
+                <h3 class="prompt-title">📸 人像写真</h3>
+                <div class="code-block">
+                    <code>咖啡馆门口的年轻亚洲女性，穿着米色毛衣，温柔的微笑，玻璃门倒影，午后阳光，85mm镜头</code>
+                </div>
+                <ul class="prompt-examples">
+                    <li>职场精英：商务肖像，摩天大楼背景</li>
+                    <li>古风美人：汉服长发，古典园林</li>
+                    <li>温柔人像：柔和光线，浅景深</li>
+                </ul>
+            </div>
+
+            <div class="prompt-card">
+                <h3 class="prompt-title">🌆 创意概念</h3>
+                <div class="code-block">
+                    <code>赛博朋克风格的城市夜景，霓虹灯广告牌，雨后街道反射，东方元素，未来主义</code>
+                </div>
+                <ul class="prompt-examples">
+                    <li>3D玩具世界：微缩场景，梦幻氛围</li>
+                    <li>宇宙探索：宇航员，星空璀璨</li>
+                    <li>科技产品：极简风格，蓝色光效</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tips-container">
+            <h3 style="text-align: center; margin-bottom: 2rem; color: var(--accent-blue);">💡 使用技巧</h3>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <div class="tip-icon">🔤</div>
+                    <h4>中英混合</h4>
+                    <p>Z-image擅长处理中英文混合提示，描述更精确</p>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon">✍️</div>
+                    <h4>文字生成</h4>
+                    <p>明确"清晰文字"、"字体"效果更好</p>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon">⚙️</div>
+                    <h4>参数优化</h4>
+                    <p>1024×1024, 8-9步, Guidance 0.0</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="container">
+        <h2 class="section-title">常见问题解答</h2>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>哪些硬件能流畅运行Z-Image？显存不够该怎么解决？</h3>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>消费级的RTX 3060显卡即可流畅运行，RTX 4090生成1024×1024图像仅需2.3秒且显存占用13GB。</p>
+                <p>若出现显存不足：</p>
+                <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                    <li>先将分辨率降到384</li>
+                    <li>把批量处理数减到1</li>
+                    <li>用混合精度、4bit量化压缩显存</li>
+                    <li>开启CPU Offload把部分参数转移到CPU</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>生成的图像出现全黑、细节模糊该怎么处理？</h3>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <ul>
+                    <li><strong>全黑</strong>：大概率是参数设置不当，建议将分辨率调到1024×1024，采样步数设为8-9</li>
+                    <li><strong>细节模糊</strong>：可在提示词中补充光效、材质等关键词，比如加上"电影风、黄金时段光影"</li>
+                    <li><strong>比例异常</strong>：细化人物描述，明确身高、肢体动作等细节</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>Z-Image用于商业场景有授权限制吗？</h3>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>个人、工作室和企业均可免费商用。二次开发后分发时，需保留版权声明，遵循相关许可规定即可。</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>用Z-Image生成的图像涉及版权问题吗？</h3>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>生成的图像若用于商业用途，要做好内容审核，避开成人内容、侵权元素等违规内容；同时建议保留生成所用的提示词和参数记录，以便应对可能的版权核查。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p style="color: var(--text-secondary);">© 2025 Z-image (造相). All Rights Reserved.</p>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">6B小参数，20B+大能量</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll function
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // FAQ toggle
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const allItems = document.querySelectorAll('.faq-item');
+
+            // Close other items
+            allItems.forEach(item => {
+                if (item !== faqItem && item.classList.contains('active')) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Toggle current item
+            faqItem.classList.toggle('active');
+        }
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease both';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards and sections
+        document.querySelectorAll('.card, .tech-item, .feature-box, .prompt-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Add parallax effect to hero section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+
+        // Image Generator Functions
+        // Set prompt from example tags
+        function setPrompt(promptText) {
+            const promptInput = document.getElementById('prompt');
+            promptInput.value = promptText;
+
+            // Add a little animation effect
+            promptInput.style.borderColor = 'var(--accent-blue)';
+            promptInput.style.boxShadow = '0 0 15px rgba(0, 166, 255, 0.3)';
+            setTimeout(() => {
+                promptInput.style.borderColor = '';
+                promptInput.style.boxShadow = '';
+            }, 1000);
+        }
+
+        // Toggle advanced options
+        function toggleAdvanced() {
+            const content = document.getElementById('advancedContent');
+            const toggle = document.getElementById('advancedToggle');
+
+            if (content.style.display === 'none' || !content.style.display) {
+                content.style.display = 'block';
+                toggle.textContent = '▲';
+                toggle.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▼';
+                toggle.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Update slider values in real-time
+        document.addEventListener('DOMContentLoaded', function() {
+            // Steps slider
+            const stepsSlider = document.getElementById('steps');
+            const stepsValue = stepsSlider.nextElementSibling;
+            if (stepsSlider && stepsValue) {
+                stepsSlider.addEventListener('input', function() {
+                    stepsValue.textContent = this.value;
+                });
+            }
+
+            // Guidance slider
+            const guidanceSlider = document.getElementById('guidance');
+            const guidanceValue = guidanceSlider.nextElementSibling;
+            if (guidanceSlider && guidanceValue) {
+                guidanceSlider.addEventListener('input', function() {
+                    guidanceValue.textContent = parseFloat(this.value).toFixed(1);
+                });
+            }
+        });
+
+        // Image generation simulation (mock function for now)
+        let isGenerating = false;
+
+        async function generateImage() {
+            if (isGenerating) return;
+
+            // Get input values
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt || prompt.trim() === '') {
+                alert('请输入提示词');
+                return;
+            }
+
+            const width = document.getElementById('width').value;
+            const count = document.getElementById('count').value;
+            const style = document.getElementById('style').value;
+            const seed = document.getElementById('seed').value;
+            const steps = document.getElementById('steps').value;
+            const guidance = document.getElementById('guidance').value;
+
+            // Set generating state
+            isGenerating = true;
+            const generateBtn = document.getElementById('generateBtn');
+            const imageGallery = document.getElementById('imageGallery');
+            const loadingState = document.getElementById('loadingState');
+            const outputStatus = document.getElementById('outputStatus');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+
+            // Update UI
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">生成中...</span>';
+            imageGallery.style.display = 'none';
+            loadingState.style.display = 'block';
+            outputStatus.textContent = '正在生成';
+            outputStatus.style.background = 'rgba(255, 165, 0, 0.1)';
+            outputStatus.style.color = 'var(--warning-color)';
+
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = Math.floor(progress) + '%';
+            }, 300);
+
+            try {
+                // TODO: Replace with actual API call
+                // For now, simulate API call with setTimeout
+                await simulateImageGeneration({
+                    prompt,
+                    width: parseInt(width),
+                    count: parseInt(count),
+                    style,
+                    seed: seed ? parseInt(seed) : null,
+                    steps: parseInt(steps),
+                    guidance: parseFloat(guidance)
+                });
+
+                // Success
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                progressText.textContent = '100%';
+
+                // Show mock images (for demonstration)
+                showMockImages(count);
+
+                outputStatus.textContent = '生成完成';
+                outputStatus.style.background = 'rgba(0, 255, 0, 0.1)';
+                outputStatus.style.color = 'var(--success-color)';
+
+            } catch (error) {
+                console.error('生成失败:', error);
+                outputStatus.textContent = '生成失败';
+                outputStatus.style.background = 'rgba(255, 0, 0, 0.1)';
+                outputStatus.style.color = 'var(--error-color)';
+            } finally {
+                // Reset UI
+                clearInterval(progressInterval);
+                isGenerating = false;
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<span class="btn-icon">✨</span><span class="btn-text">生成图像</span>';
+
+                setTimeout(() => {
+                    loadingState.style.display = 'none';
+                    imageGallery.style.display = 'grid';
+                }, 500);
+            }
+        }
+
+        // Mock image generation function
+        function simulateImageGeneration(params) {
+            return new Promise((resolve) => {
+                console.log('生成参数:', params);
+                // Simulate processing time
+                setTimeout(resolve, 2000 + Math.random() * 2000);
+            });
+        }
+
+        // Show mock images for demonstration
+        function showMockImages(count) {
+            const gallery = document.getElementById('imageGallery');
+            gallery.innerHTML = '';
+
+            // Mock image URLs (using placeholder images)
+            const mockImages = [
+                'https://picsum.photos/512/512?random=1',
+                'https://picsum.photos/512/512?random=2',
+                'https://picsum.photos/512/512?random=3',
+                'https://picsum.photos/512/512?random=4'
+            ];
+
+            const actualCount = Math.min(parseInt(count), 4);
+
+            for (let i = 0; i < actualCount; i++) {
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'image-container';
+
+                const img = document.createElement('img');
+                img.src = mockImages[i];
+                img.alt = `生成的图像 ${i + 1}`;
+                img.className = 'generated-image';
+                img.onclick = () => viewImage(img.src);
+
+                const actions = document.createElement('div');
+                actions.className = 'image-actions';
+                actions.innerHTML = `
+                    <button class="action-btn" onclick="downloadImage('${mockImages[i]}')">下载</button>
+                    <button class="action-btn" onclick="viewImage('${mockImages[i]}')">查看</button>
+                    <button class="action-btn" onclick="copyPrompt()">复制提示词</button>
+                    <button class="action-btn" onclick="regenerateImage()">重新生成</button>
+                `;
+
+                imageContainer.appendChild(img);
+                imageContainer.appendChild(actions);
+                gallery.appendChild(imageContainer);
+            }
+        }
+
+        // Image action functions
+        function downloadImage(imageUrl) {
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = `z-image-${Date.now()}.jpg`;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function viewImage(imageUrl) {
+            window.open(imageUrl, '_blank');
+        }
+
+        function copyPrompt() {
+            const prompt = document.getElementById('prompt').value;
+            navigator.clipboard.writeText(prompt).then(() => {
+                alert('提示词已复制到剪贴板');
+            });
+        }
+
+        function regenerateImage() {
+            generateImage();
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Enter to generate
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const promptInput = document.getElementById('prompt');
+                if (document.activeElement === promptInput) {
+                    generateImage();
+                }
+            }
+
+            // Escape to clear input
+            if (e.key === 'Escape') {
+                document.getElementById('prompt').value = '';
+                document.getElementById('prompt').focus();
+            }
+        });
+    </script>
+</body>
+</html>
