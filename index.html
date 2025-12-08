@@ -1053,6 +1053,19 @@
                 text-align: center;
             }
         }
+
+        /* 初始隐藏状态，为动画做准备 */
+        .card, .tech-item, .feature-box, .prompt-card {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: none;
+        }
+
+        /* 确保已加载的动画元素不被重复触发 */
+        .card.animated, .tech-item.animated, .feature-box.animated, .prompt-card.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -1195,13 +1208,13 @@
     <section id="intro" class="container">
         <h2 class="section-title">产品定位与核心亮点</h2>
 
-        <div class="card fade-in">
+        <div class="card">
             <h3>什么是Z-image？</h3>
             <p>Z-image是于2025年11月发布的高效图像生成基础模型，核心定位是"轻量且高性能"。个人和企业可自由使用、修改并二次分发，搭配官方提供的技术报告和快速入门代码，方便开发者进行二次开发。</p>
         </div>
 
         <div class="grid-3">
-            <div class="card fade-in">
+            <div class="card">
                 <h3 style="color: var(--success-color);">✅ Z-Image-Turbo</h3>
                 <p><strong>高效推理版（已发布）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
@@ -1212,7 +1225,7 @@
                 </ul>
             </div>
 
-            <div class="card fade-in">
+            <div class="card">
                 <h3 style="color: var(--warning-color);">🔄 Z-Image-Base</h3>
                 <p><strong>基础开发版（待发布）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
@@ -1223,7 +1236,7 @@
                 </ul>
             </div>
 
-            <div class="card fade-in">
+            <div class="card">
                 <h3 style="color: var(--accent-blue);">✏️ Z-Image-Edit</h3>
                 <p><strong>图像编辑版（待发布）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
@@ -1304,7 +1317,7 @@
         <h2 class="section-title">应用场景</h2>
 
         <div class="grid-3">
-            <div class="card fade-in">
+            <div class="card">
                 <h3>👥 个人创作者</h3>
                 <ul style="color: var(--text-secondary);">
                     <li>宠物拟人化插画</li>
@@ -1314,7 +1327,7 @@
                 </ul>
             </div>
 
-            <div class="card fade-in">
+            <div class="card">
                 <h3>🎨 职场从业者</h3>
                 <ul style="color: var(--text-secondary);">
                     <li>自媒体封面图</li>
@@ -1324,7 +1337,7 @@
                 </ul>
             </div>
 
-            <div class="card fade-in">
+            <div class="card">
                 <h3>👨‍💻 技术开发者</h3>
                 <ul style="color: var(--text-secondary);">
                     <li>垂直领域微调</li>
@@ -1491,14 +1504,15 @@
 
         // Add animation on scroll
         const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
+            threshold: 0.3,  // 提高到30%，让元素更多进入视口再触发
+            rootMargin: '0px 0px -150px 0px'  // 增加负边距，延迟触发
         };
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
                     entry.target.style.animation = 'fadeInUp 0.6s ease both';
+                    entry.target.classList.add('animated');
                 }
             });
         }, observerOptions);
