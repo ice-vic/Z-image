@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-image：6B参数挑战20B，阿里开源AI生图黑马全解析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-blue: #00a6ff;
+            --accent-blue-light: #00d4ff;
+            --accent-blue-glow: rgba(0, 166, 255, 0.5);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+            text-shadow: 0 0 20px var(--accent-blue-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+            text-shadow: 0 0 10px var(--accent-blue-glow);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--text-primary), var(--accent-blue), var(--accent-blue-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 1s ease, glow 2s ease-in-out infinite alternate;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            color: white;
+            box-shadow: 0 10px 30px var(--accent-blue-glow);
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px var(--accent-blue-glow), 0 0 30px var(--accent-blue);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent-blue-glow), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-blue);
+            color: white;
+            box-shadow: 0 0 20px var(--accent-blue-glow);
+        }
+
+        .btn-secondary:hover::before {
+            left: 100%;
+        }
+
+        /* Sections */
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light), var(--accent-blue));
+            border-radius: 20px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s;
+            filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px var(--accent-blue-glow);
+        }
+
+        .card:hover::before {
+            opacity: 0.5;
+        }
+
+        .card h3 {
+            color: var(--accent-blue);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--accent-blue-glow);
+        }
+
+        /* Model Variants */
+        .variants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .variant-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .variant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-light));
+        }
+
+        .variant-card.available::before {
+            background: linear-gradient(90deg, #4caf50, #66bb6a);
+        }
+
+        .variant-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px var(--accent-blue-glow);
+            border-color: var(--accent-blue);
+        }
+
+        .variant-title {
+            font-size: 1.3rem;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 5px var(--accent-blue-glow);
+        }
+
+        .variant-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: rgba(0, 166, 255, 0.2);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+        }
+
+        .variant-status.available {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px var(--accent-blue-glow);
+            transition: all 0.3s;
+        }
+
+        .feature-item:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px var(--accent-blue-glow), 0 0 20px var(--accent-blue);
+        }
+
+        /* Tech Specs */
+        .tech-specs {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .spec-item {
+            text-align: center;
+        }
+
+        .spec-value {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            text-shadow: 0 0 20px var(--accent-blue-glow);
+        }
+
+        .spec-label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* User Reviews */
+        .review {
+            background: var(--card-bg);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 10px 10px 0;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .review::before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent-blue-glow), transparent);
+            transition: left 0.5s;
+        }
+
+        .review:hover {
+            box-shadow: 0 5px 20px var(--accent-blue-glow);
+        }
+
+        .review:hover::before {
+            left: 100%;
+        }
+
+        .review.positive {
+            border-left-color: #4caf50;
+        }
+
+        .review.positive::before {
+            background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.2), transparent);
+        }
+
+        .review.negative {
+            border-left-color: #f44336;
+        }
+
+        .review.negative::before {
+            background: linear-gradient(90deg, transparent, rgba(244, 67, 54, 0.2), transparent);
+        }
+
+        /* FAQ */
+        .faq-item {
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .faq-question:hover {
+            background: rgba(0, 166, 255, 0.1);
+            box-shadow: 0 0 15px var(--accent-blue-glow);
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 1.5rem;
+            max-height: 500px;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-blue);
+            text-shadow: 0 0 5px var(--accent-blue-glow);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px var(--accent-blue-glow);
+            }
+            to {
+                text-shadow: 0 0 20px var(--accent-blue), 0 0 30px var(--accent-blue-glow);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">Z-image 造相</div>
+            <ul class="nav-links">
+                <li><a href="#features">核心特性</a></li>
+                <li><a href="#tech">技术解析</a></li>
+                <li><a href="#usecases">应用场景</a></li>
+                <li><a href="#reviews">用户评价</a></li>
+                <li><a href="#faq">常见问题</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Z-image：6B参数挑战20B</h1>
+            <p class="hero-subtitle">阿里开源AI生图黑马，用"小而美"重塑技术格局</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/Tongyi-MAI/Z-Image" class="btn btn-primary">立即下载</a>
+                <a href="https://huggingface.co/Tongyi-MAI" class="btn btn-secondary">在线体验</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction -->
+    <section class="container">
+        <div class="card">
+            <h2>AI图像生成的新纪元</h2>
+            <p>当整个行业都在为参数量竞赛疯狂时，阿里巴巴通义实验室却走了一条不一样的路。2025年11月，他们开源了仅有6B参数的Z-image（中文名"造相"），却实现了对标20B以上参数量闭源旗舰模型的生图效果。这个"小而美"的模型，正在掀起一场从"大即是美"到"精即是美"的技术革命。</p>
+            <br>
+            <p>想象一下，当其他AI模型需要高端服务器才能运行时，你的RTX 3060就能流畅生成1024×1024的高质量图像；当对手需要20步推理才能出图时，Z-image仅需8步就能在2.3秒内完成。这不是科幻，而是Z-image带来的现实。</p>
+        </div>
+    </section>
+
+    <!-- Model Variants -->
+    <section id="features" class="container">
+        <h2 class="section-title">三大变体模型</h2>
+        <div class="variants-grid">
+            <div class="variant-card available">
+                <span class="variant-status available">已开源</span>
+                <h3 class="variant-title">Z-Image-Turbo</h3>
+                <p>高效推理版，专为追求速度的用户设计</p>
+                <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                    <li>仅需8步采样，实现亚秒级推理</li>
+                    <li>显存占用≤16GB</li>
+                    <li>擅长照片级生成与中英文字渲染</li>
+                    <li>AI Arena全球第四、开源第一</li>
+                </ul>
+            </div>
+            <div class="variant-card">
+                <span class="variant-status">待发布</span>
+                <h3 class="variant-title">Z-Image-Base</h3>
+                <p>基础开发版，支持垂直领域微调</p>
+                <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                    <li>保留6B全参数</li>
+                    <li>适合电商商品图、课件插图定制</li>
+                    <li>全参数微调能力</li>
+                    <li>为专业开发者提供定制空间</li>
+                </ul>
+            </div>
+            <div class="variant-card">
+                <span class="variant-status">待发布</span>
+                <h3 class="variant-title">Z-Image-Edit</h3>
+                <p>图像编辑版，自然语言驱动修改</p>
+                <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                    <li>换背景、改元素等编辑功能</li>
+                    <li>保持原图风格一致性</li>
+                    <li>支持复合编辑指令</li>
+                    <li>"让人物微笑+转头+换背景"</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Specs -->
+    <section id="tech" class="container">
+        <h2 class="section-title">核心技术突破</h2>
+        <div class="tech-specs">
+            <h3 style="background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2rem; font-size: 1.8rem;">性能基准测试</h3>
+            <div class="spec-grid">
+                <div class="spec-item">
+                    <div class="spec-value">7.2</div>
+                    <div class="spec-label">FID分数<br><small>(越低越好)</small></div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">#4</div>
+                    <div class="spec-label">AI Arena排名<br><small>(全球第四)</small></div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">2.3秒</div>
+                    <div class="spec-label">RTX 4090生成时间<br><small>(1024×1024)</small></div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">13GB</div>
+                    <div class="spec-label">显存占用<br><small>(RTX 4090)</small></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="variants-grid" style="margin-top: 3rem;">
+            <div class="card">
+                <h3>S³-DiT单流架构</h3>
+                <p>创新性地采用S³-DiT（Scalable Single-Stream Diffusion Transformer）架构，将文本语义、视觉语义和图像VAE令牌拼接为统一输入流，大幅提升参数利用率。这就是为什么Z-image仅用6B参数就能达到20B+模型效果的核心秘密。</p>
+            </div>
+            <div class="card">
+                <h3>统一旋转位置编码（U-RoPE）</h3>
+                <p>基于李代数so(n)原理，将传统一维RoPE扩展到多维场景，既能适配文本的一维顺序位置信息，又能保留图像在三维空间的几何结构。</p>
+            </div>
+            <div class="card">
+                <h3>解耦DMD技术</h3>
+                <p>通过解耦DMD技术拆分传统分布匹配蒸馏的协同机制，单独优化以压缩推理步骤；再通过DMDR技术引入强化学习，在蒸馏基础上修补图像细节。这就是Turbo版本仅需8步就能生成高质量图像的关键。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section id="usecases" class="container">
+        <h2 class="section-title">应用场景</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">👥</div>
+                <h3>个人创作者</h3>
+                <p>宠物拟人化插画<br>卡通故事配图<br>个性化头像生成</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎨</div>
+                <h3>设计师</h3>
+                <p>国潮海报设计<br>活动宣传图初稿<br>快速创意原型</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🛍️</div>
+                <h3>电商商家</h3>
+                <p>商品白底图批量生成<br>场景展示图创作<br>降低拍摄成本</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📚</div>
+                <h3>教育工作者</h3>
+                <p>古诗意境可视化<br>历史场景重现<br>科学概念图解</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Reviews -->
+    <section id="reviews" class="container">
+        <h2 class="section-title">用户真实评价</h2>
+
+        <div class="review positive">
+            <h4 style="color: #4caf50;">硬件门槛极低</h4>
+            <p>"哪怕是几年前的RTX 3060这类消费级显卡都能流畅运行，权重文件仅几十GB，对比动辄上百GB的旗舰模型，大幅节省存储资源。而且在ComfyUI中无需安装第三方节点，内置工作流打开模板就能用。"</p>
+        </div>
+
+        <div class="review positive">
+            <h4 style="color: #4caf50;">3D出屏效果惊艳</h4>
+            <p>"它在3D出屏效果上表现甚至优于Flux2，边缘处理和投影更真实，能呈现出'突出屏幕'的触感；生成3DQ风格的微型场景时，立体感和颜色分层清晰，画面干净。"</p>
+        </div>
+
+        <div class="review negative">
+            <h4 style="color: #f44336;">中文嵌字问题</h4>
+            <p>"有用户测试生成珠海五天行程插图时，出现字体错位、字符错误的问题，甚至关键信息写错，完全无法满足行程图、海报等需要精准文字的场景。"</p>
+        </div>
+
+        <div class="review negative">
+            <h4 style="color: #f44336;">复杂场景处理不足</h4>
+            <p>"在二次元题材上更是短板，有测试中它完全无法识别初音未来、洛天依等角色，生成的画面完全不符合需求。"</p>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="container">
+        <h2 class="section-title">常见问题解答</h2>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>哪些硬件能流畅运行Z-Image？显存不够该怎么解决？</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                <p>消费级的RTX 3060显卡即可流畅运行，RTX 4090生成1024×1024图像仅需2.3秒且显存占用13GB。若出现显存不足：</p>
+                <ul>
+                    <li>先将分辨率降到384</li>
+                    <li>把批量处理数减到1</li>
+                    <li>用混合精度、4bit量化压缩显存</li>
+                    <li>开启CPU Offload把部分参数转移到CPU</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>本地部署时加载模型失败该怎么办？</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                <ul>
+                    <li>确认模型权重是从Hugging Face、ModelScope等官方平台获取的，且完整性没问题</li>
+                    <li>检查加载方式和官方README中的要求一致</li>
+                    <li>diffusers建议从源码安装以支持新特性</li>
+                    <li>避免依赖版本不匹配导致加载失败</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>Z-Image用于商业场景有授权限制吗？</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                <p>它采用Apache 2.0开源许可，个人、工作室和企业均可免费商用。二次开发后分发时，需保留版权声明，遵循开源许可的相关规定即可。</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>生成的图像出现全黑、细节模糊该怎么处理？</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                <ul>
+                    <li>全黑大概率是参数设置不当，建议将分辨率调到1024×1024，采样步数设为8-9</li>
+                    <li>细节模糊可在提示词中补充光效、材质等关键词，比如加上"电影风、黄金时段光影"</li>
+                    <li>人物比例异常则需细化人物描述，明确身高、肢体动作等细节</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section style="background: linear-gradient(135deg, rgba(0, 166, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%); padding: 5rem 0; position: relative; overflow: hidden;">
+        <div class="container" style="text-align: center; position: relative; z-index: 1;">
+            <h2 class="section-title" style="background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">立即体验Z-image</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">加入AI图像生成的新纪元，用6B参数挑战20B的效果</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/Tongyi-MAI/Z-Image" class="btn btn-primary">GitHub下载</a>
+                <a href="https://huggingface.co/Tongyi-MAI" class="btn btn-secondary">在线试用</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/Tongyi-MAI/Z-Image">GitHub</a>
+                <a href="https://huggingface.co/Tongyi-MAI">Hugging Face</a>
+                <a href="https://modelscope.cn/">魔搭社区</a>
+                <a href="mailto:support@z-image.ai">联系我们</a>
+            </div>
+            <p style="color: var(--text-secondary);">© 2025 Z-image (造相). Powered by Alibaba Tongyi Lab. Apache 2.0 License.</p>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Toggle
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const allItems = document.querySelectorAll('.faq-item');
+
+            // Close other items
+            allItems.forEach(item => {
+                if (item !== faqItem && item.classList.contains('active')) {
+                    item.classList.remove('active');
+                    item.querySelector('.faq-question span:last-child').textContent = '+';
+                }
+            });
+
+            // Toggle current item
+            faqItem.classList.toggle('active');
+            const sign = element.querySelector('span:last-child');
+            sign.textContent = faqItem.classList.contains('active') ? '−' : '+';
+        }
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease both';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card, .variant-card, .feature-item, .review').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
