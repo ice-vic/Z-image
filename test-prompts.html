@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Language Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .language-switcher {
+            margin-bottom: 20px;
+        }
+        .lang-btn {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: 1px solid #ccc;
+            background: #f0f0f0;
+            cursor: pointer;
+        }
+        .lang-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #eee;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 14px;
+        }
+        .example-tags {
+            margin: 10px 0;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .example-tag:hover {
+            background: #d0d0d0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prompt Language Test</h1>
+
+    <div class="language-switcher">
+        <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+        <button class="lang-btn" onclick="setLanguage('zh')">中文</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Input Placeholder Test</h2>
+        <textarea id="prompt" placeholder="Default placeholder"></textarea>
+        <p>Current language: <span id="currentLang">en</span></p>
+    </div>
+
+    <div class="test-section">
+        <h2>Example Prompts Test</h2>
+        <div class="example-tags">
+            <span class="example-tag" onclick="setPrompt('国风茶馆的木质招牌，带清晰茗香二字，古色古香的建筑，红灯笼，竹子装饰，清晨阳光斜射，写实风格，8K', 'Traditional Chinese tea house with wooden sign featuring clear Ming Xiang characters, antique architecture, red lanterns, bamboo decorations, morning sunlight casting at an angle, realistic style, 8K')">
+                Chinese Tea House
+            </span>
+            <span class="example-tag" onclick="setPrompt('赛博朋克风格的城市夜景，霓虹灯广告牌，雨后街道反射，东方元素，未来主义，高楼林立，紫色和蓝色调', 'Cyberpunk style city night scene, neon billboards, reflective streets after rain, Eastern elements, futuristic, towering skyscrapers, purple and blue tones')">
+                Cyberpunk
+            </span>
+            <span class="example-tag" onclick="setPrompt('咖啡馆门口的年轻亚洲女性，穿着米色毛衣，温柔的微笑，玻璃门倒影，午后阳光，柔和光线，浅景深', 'Young Asian woman at café entrance, wearing beige sweater, gentle smile, reflection in glass door, afternoon sunlight, soft lighting, shallow depth of field')">
+                Portrait
+            </span>
+        </div>
+        <p>Click on the tags above to set prompts in different languages</p>
+    </div>
+
+    <script>
+        let currentLanguage = 'en';
+
+        const translations = {
+            zh: {
+                'placeholder': '输入您想要生成的图像描述，支持中英文...\n例如：一只可爱的熊猫在竹林中玩耍，阳光透过竹叶洒下'
+            },
+            en: {
+                'placeholder': 'Enter your image description, supports Chinese and English...\nFor example: A cute panda playing in the bamboo forest, sunlight filtering through the leaves'
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.getElementById('currentLang').textContent = lang;
+
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update placeholder
+            updatePlaceholder();
+        }
+
+        function updatePlaceholder() {
+            const promptInput = document.getElementById('prompt');
+            promptInput.placeholder = translations[currentLanguage]['placeholder'];
+        }
+
+        function setPrompt(promptZh, promptEn) {
+            const promptInput = document.getElementById('prompt');
+            const promptToUse = currentLanguage === 'zh' ? promptZh : (promptEn || promptZh);
+            promptInput.value = promptToUse;
+
+            console.log('Current language:', currentLanguage);
+            console.log('Chinese prompt:', promptZh);
+            console.log('English prompt:', promptEn);
+            console.log('Selected prompt:', promptToUse);
+        }
+
+        // Initialize
+        updatePlaceholder();
+    </script>
+</body>
+</html>

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" id="html-lang">
 <head>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1602768537859178"
      crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z-Image - 6B参数，8步成画，RTX 3060也能跑的AI生图神器</title>
+    <title data-zh="Z-Image - 6B参数，8步成画，RTX 3060也能跑的AI生图神器" data-en="Z-Image - 6B Params, 8 Steps to Art, AI Image Generator That Runs on RTX 3060">Z-Image - 6B Params, 8 Steps to Art, AI Image Generator That Runs on RTX 3060</title>
     <style>
         * {
             margin: 0;
@@ -126,6 +126,48 @@
 
         .nav-links a:hover::after {
             width: 100%;
+        }
+
+        /* Language Switcher */
+        .language-switcher {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 166, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-switcher:hover {
+            background: rgba(0, 166, 255, 0.2);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .lang-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .lang-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
         }
 
         /* Hero Section */
@@ -1077,24 +1119,29 @@
     <!-- Header -->
     <header>
         <nav class="container">
-            <div class="logo">Z-image 造相</div>
+            <div class="logo" data-zh="Z-image 造相" data-en="Z-image">Z-image</div>
             <ul class="nav-links">
-                <li><a href="#intro">产品介绍</a></li>
-                <li><a href="#tech">技术解析</a></li>
-                <li><a href="#tutorial">实战教程</a></li>
-                <li><a href="#faq">常见问题</a></li>
+                <li><a href="#intro" data-zh="产品介绍" data-en="Products">产品介绍</a></li>
+                <li><a href="#tech" data-zh="技术解析" data-en="Technology">技术解析</a></li>
+                <li><a href="#tutorial" data-zh="实战教程" data-en="Tutorials">实战教程</a></li>
+                <li><a href="#faq" data-zh="常见问题" data-en="FAQ">常见问题</a></li>
             </ul>
+            <div class="language-switcher" onclick="switchLanguage()">
+                <button class="lang-btn" id="lang-zh" onclick="event.stopPropagation(); setLanguage('zh')">中</button>
+                <div class="lang-divider"></div>
+                <button class="lang-btn active" id="lang-en" onclick="event.stopPropagation(); setLanguage('en')">EN</button>
+            </div>
         </nav>
     </header>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <h1>Z-Image - 6B参数，8步成画</h1>
-            <p class="hero-subtitle">AI生图黑马，用"小而美"重塑技术格局。当其他AI需要高端服务器时，你的RTX 3060就能流畅生成高质量图像。</p>
+            <h1 data-zh="Z-Image - 6B参数，8步成画" data-en="Z-Image - 6B Params, 8 Steps to Art">Z-Image - 6B Params, 8 Steps to Art</h1>
+            <p class="hero-subtitle" data-zh="AI生图黑马，用"小而美"重塑技术格局。当其他AI需要高端服务器时，你的RTX 3060就能流畅生成高质量图像。" data-en="The dark horse of AI image generation, reshaping the tech landscape with "small but beautiful". When other AIs need high-end servers, your RTX 3060 can smoothly generate high-quality images.">The dark horse of AI image generation, reshaping the tech landscape with "small but beautiful". When other AIs need high-end servers, your RTX 3060 can smoothly generate high-quality images.</p>
             <div class="cta-buttons">
-                <button class="btn btn-primary" onclick="scrollToSection('intro')">了解更多</button>
-                <button class="btn btn-secondary" onclick="scrollToSection('tutorial')">查看教程</button>
+                <button class="btn btn-primary" onclick="scrollToSection('intro')" data-zh="了解更多" data-en="Learn More">Learn More</button>
+                <button class="btn btn-secondary" onclick="scrollToSection('tutorial')" data-zh="查看教程" data-en="View Tutorial">View Tutorial</button>
             </div>
         </div>
 
@@ -1103,93 +1150,93 @@
             <div class="generator-container">
                 <!-- Input Panel -->
                 <div class="input-panel">
-                    <h3 class="panel-title">🎨 图像生成器</h3>
+                    <h3 class="panel-title" data-zh="🎨 图像生成器" data-en="🎨 Image Generator">🎨 Image Generator</h3>
 
                     <div class="input-group">
-                        <label for="prompt">提示词</label>
-                        <textarea id="prompt" placeholder="输入您想要生成的图像描述，支持中英文...&#10;例如：一只可爱的熊猫在竹林中玩耍，阳光透过竹叶洒下"></textarea>
+                        <label for="prompt" data-zh="提示词" data-en="Prompt">Prompt</label>
+                        <textarea id="prompt" data-zh-placeholder="输入您想要生成的图像描述，支持中英文...&#10;例如：一只可爱的熊猫在竹林中玩耍，阳光透过竹叶洒下" data-en-placeholder="Enter your image description, supports Chinese and English...&#10;For example: A cute panda playing in the bamboo forest, sunlight filtering through the leaves" placeholder="Enter your image description, supports Chinese and English...&#10;For example: A cute panda playing in the bamboo forest, sunlight filtering through the leaves"></textarea>
                         <div class="prompt-examples">
-                            <span class="example-tag" onclick="setPrompt('国风茶馆的木质招牌，带清晰&apos;茗香&apos;二字，古色古香的建筑，红灯笼，竹子装饰，清晨阳光斜射，写实风格，8K')">国风茶馆</span>
-                            <span class="example-tag" onclick="setPrompt('赛博朋克风格的城市夜景，霓虹灯广告牌，雨后街道反射，东方元素，未来主义，高楼林立，紫色和蓝色调')">赛博朋克</span>
-                            <span class="example-tag" onclick="setPrompt('咖啡馆门口的年轻亚洲女性，穿着米色毛衣，温柔的微笑，玻璃门倒影，午后阳光，柔和光线，浅景深')">人像写真</span>
+                            <span class="example-tag" onclick="setPrompt('国风茶馆的木质招牌，带清晰茗香二字，古色古香的建筑，红灯笼，竹子装饰，清晨阳光斜射，写实风格，8K', 'Traditional Chinese tea house with wooden sign featuring clear Ming Xiang characters, antique architecture, red lanterns, bamboo decorations, morning sunlight casting at an angle, realistic style, 8K')" data-zh="国风茶馆" data-en="Chinese Tea House">国风茶馆</span>
+                            <span class="example-tag" onclick="setPrompt('赛博朋克风格的城市夜景，霓虹灯广告牌，雨后街道反射，东方元素，未来主义，高楼林立，紫色和蓝色调', 'Cyberpunk style city night scene, neon billboards, reflective streets after rain, Eastern elements, futuristic, towering skyscrapers, purple and blue tones')" data-zh="赛博朋克" data-en="Cyberpunk">赛博朋克</span>
+                            <span class="example-tag" onclick="setPrompt('咖啡馆门口的年轻亚洲女性，穿着米色毛衣，温柔的微笑，玻璃门倒影，午后阳光，柔和光线，浅景深', 'Young Asian woman at café entrance, wearing beige sweater, gentle smile, reflection in glass door, afternoon sunlight, soft lighting, shallow depth of field')" data-zh="人像写真" data-en="Portrait">人像写真</span>
                         </div>
                     </div>
 
                     <div class="input-row">
                         <div class="input-group half">
-                            <label for="width">图像尺寸</label>
-                            <select id="width">
-                                <option value="512">512×512</option>
-                                <option value="768">768×768</option>
-                                <option value="1024" selected>1024×1024</option>
+                            <label for="width" data-zh="图像尺寸" data-en="Image Size">Image Size</label>
+                            <select id="width" data-zh-default="1024×1024" data-en-default="1024×1024">
+                                <option value="512" data-zh="512×512" data-en="512×512">512×512</option>
+                                <option value="768" data-zh="768×768" data-en="768×768">768×768</option>
+                                <option value="1024" selected data-zh="1024×1024" data-en="1024×1024">1024×1024</option>
                             </select>
                         </div>
 
                         <div class="input-group half">
-                            <label for="count">生成数量</label>
-                            <select id="count">
-                                <option value="1" selected>1张</option>
-                                <option value="2">2张</option>
-                                <option value="4">4张</option>
+                            <label for="count" data-zh="生成数量" data-en="Generate Count">Generate Count</label>
+                            <select id="count" data-zh-default="1张" data-en-default="1">
+                                <option value="1" selected data-zh="1张" data-en="1">1张</option>
+                                <option value="2" data-zh="2张" data-en="2">2张</option>
+                                <option value="4" data-zh="4张" data-en="4">4张</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="style">风格预设</label>
+                        <label for="style" data-zh="风格预设" data-en="Style Preset">Style Preset</label>
                         <select id="style">
-                            <option value="realistic">写实风格</option>
-                            <option value="anime">动漫风格</option>
-                            <option value="guofeng">国风风格</option>
-                            <option value="cyberpunk">赛博朋克</option>
-                            <option value="oil-painting">油画风格</option>
-                            <option value="watercolor">水彩风格</option>
+                            <option value="realistic" data-zh="写实风格" data-en="Realistic Style">写实风格</option>
+                            <option value="anime" data-zh="动漫风格" data-en="Anime Style">动漫风格</option>
+                            <option value="guofeng" data-zh="国风风格" data-en="Chinese Style">国风风格</option>
+                            <option value="cyberpunk" data-zh="赛博朋克" data-en="Cyberpunk">赛博朋克</option>
+                            <option value="oil-painting" data-zh="油画风格" data-en="Oil Painting Style">油画风格</option>
+                            <option value="watercolor" data-zh="水彩风格" data-en="Watercolor Style">水彩风格</option>
                         </select>
                     </div>
 
                     <div class="advanced-options">
                         <div class="options-header" onclick="toggleAdvanced()">
-                            <span>高级选项</span>
+                            <span data-zh="高级选项" data-en="Advanced Options">Advanced Options</span>
                             <span class="toggle-icon" id="advancedToggle">▼</span>
                         </div>
                         <div class="options-content" id="advancedContent" style="display: none;">
                             <div class="input-row">
                                 <div class="input-group half">
-                                    <label for="seed">Seed值</label>
-                                    <input type="number" id="seed" placeholder="随机" min="0" max="999999999">
+                                    <label for="seed" data-zh="Seed值" data-en="Seed Value">Seed Value</label>
+                                    <input type="number" id="seed" data-zh-placeholder="随机" data-en-placeholder="Random" min="0" max="999999999">
                                 </div>
                                 <div class="input-group half">
-                                    <label for="steps">采样步数</label>
+                                    <label for="steps" data-zh="采样步数" data-en="Sampling Steps">Sampling Steps</label>
                                     <input type="range" id="steps" min="1" max="20" value="8" class="slider">
                                     <span class="slider-value">8</span>
                                 </div>
                             </div>
                             <div class="input-group">
-                                <label for="guidance">Guidance Scale</label>
+                                <label for="guidance" data-zh="Guidance Scale" data-en="Guidance Scale">Guidance Scale</label>
                                 <input type="range" id="guidance" min="0" max="10" value="3" step="0.1" class="slider">
                                 <span class="slider-value">3.0</span>
                             </div>
                         </div>
                     </div>
 
-                    <button class="generate-btn" onclick="generateImage()" id="generateBtn">
+                    <button class="generate-btn" onclick="generateImage()" id="generateBtn" data-zh-btn="生成图像" data-en-btn="Generate Image">
                         <span class="btn-icon">✨</span>
-                        <span class="btn-text">生成图像</span>
+                        <span class="btn-text" data-zh="生成图像" data-en="Generate Image">Generate Image</span>
                     </button>
                 </div>
 
                 <!-- Output Panel -->
                 <div class="output-panel">
                     <div class="output-header">
-                        <h3>生成结果</h3>
-                        <div class="output-status" id="outputStatus">准备就绪</div>
+                        <h3 data-zh="生成结果" data-en="Generation Result">Generation Result</h3>
+                        <div class="output-status" id="outputStatus" data-zh="准备就绪" data-en="Ready">Ready</div>
                     </div>
 
                     <div class="image-gallery" id="imageGallery">
                         <!-- Default placeholder images -->
                         <div class="image-placeholder">
                             <div class="placeholder-icon">🖼️</div>
-                            <p>输入提示词开始生成</p>
+                            <p data-zh="输入提示词开始生成" data-en="Enter a prompt to start generating">Enter a prompt to start generating</p>
                         </div>
                     </div>
 
@@ -1197,7 +1244,7 @@
                     <div class="loading-state" id="loadingState" style="display: none;">
                         <div class="loading-spinner"></div>
                         <div class="loading-text">
-                            <p>正在生成图像，请稍候...</p>
+                            <p data-zh="正在生成图像，请稍候..." data-en="Generating image, please wait...">Generating image, please wait...</p>
                             <div class="progress-bar">
                                 <div class="progress-fill" id="progressFill"></div>
                             </div>
@@ -1211,76 +1258,79 @@
 
     <!-- Introduction -->
     <section id="intro" class="container">
-        <h2 class="section-title">产品定位与核心亮点</h2>
+        <h2 class="section-title" data-zh="产品定位与核心亮点" data-en="Product Positioning & Core Highlights">产品定位与核心亮点</h2>
 
         <div class="card">
-            <h3>什么是Z-image？</h3>
-            <p>Z-image是于2025年11月发布的高效图像生成基础模型，核心定位是"轻量且高性能"。个人和企业可自由使用、修改并二次分发，搭配官方提供的技术报告和快速入门代码，方便开发者进行二次开发。</p>
+            <h3 data-zh="什么是Z-image？" data-en="What is Z-image?">什么是Z-image？</h3>
+            <p data-zh="Z-image是于2025年11月发布的高效图像生成基础模型，核心定位是'轻量且高性能'。个人和企业可自由使用、修改并二次分发，搭配官方提供的技术报告和快速入门代码，方便开发者进行二次开发。" data-en="Z-image is an efficient image generation foundation model released in November 2025, with core positioning as 'lightweight and high-performance'. Individuals and enterprises can freely use, modify and redistribute it, coupled with official technical reports and quick-start code for convenient developer secondary development.">Z-image是于2025年11月发布的高效图像生成基础模型，核心定位是"轻量且高性能"。个人和企业可自由使用、修改并二次分发，搭配官方提供的技术报告和快速入门代码，方便开发者进行二次开发。</p>
         </div>
 
         <div class="grid-3">
             <div class="card">
-                <h3 style="color: var(--success-color);">✅ Z-Image-Turbo</h3>
-                <p><strong>高效推理版（已发布）</strong></p>
+                <h3 style="color: var(--success-color);" data-zh="✅ Z-Image-Turbo" data-en="✅ Z-Image-Turbo">✅ Z-Image-Turbo</h3>
+                <p data-zh="<strong>高效推理版（已发布）</strong>" data-en="<strong>Efficient Inference Version (Released)</strong>"><strong>高效推理版（已发布）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
-                    <li>仅需8步采样，亚秒级推理</li>
-                    <li>显存占用≤16GB</li>
-                    <li>擅长照片级生成与中英文字渲染</li>
-                    <li>AI Arena全球第四</li>
+                    <li data-zh="仅需8步采样，亚秒级推理" data-en="Only 8-step sampling, sub-second inference">仅需8步采样，亚秒级推理</li>
+                    <li data-zh="显存占用≤16GB" data-en="Memory usage ≤16GB">显存占用≤16GB</li>
+                    <li data-zh="擅长照片级生成与中英文字渲染" data-en="Excels at photo-level generation & Chinese/English text rendering">擅长照片级生成与中英文字渲染</li>
+                    <li data-zh="AI Arena全球第四" data-en="4th in AI Arena Global">AI Arena全球第四</li>
                 </ul>
+                <button class="btn btn-secondary" onclick="alert('查看详情功能待实现')" data-zh="查看详情" data-en="View Details">查看详情</button>
             </div>
 
             <div class="card">
-                <h3 style="color: var(--warning-color);">🔄 Z-Image-Base</h3>
-                <p><strong>基础开发版（待发布）</strong></p>
+                <h3 style="color: var(--warning-color);" data-zh="🔄 Z-Image-Base" data-en="🔄 Z-Image-Base">🔄 Z-Image-Base</h3>
+                <p data-zh="<strong>基础开发版（待发布）</strong>" data-en="<strong>Basic Development Version (To Be Released)</strong>"><strong>基础开发版（待发布）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
-                    <li>保留6B全参数</li>
-                    <li>支持垂直领域数据微调</li>
-                    <li>全参数微调能力</li>
-                    <li>打造专属模型</li>
+                    <li data-zh="保留6B全参数" data-en="Retains full 6B parameters">保留6B全参数</li>
+                    <li data-zh="支持垂直领域数据微调" data-en="Supports vertical domain data fine-tuning">支持垂直领域数据微调</li>
+                    <li data-zh="全参数微调能力" data-en="Full parameter fine-tuning capability">全参数微调能力</li>
+                    <li data-zh="打造专属模型" data-en="Create exclusive models">打造专属模型</li>
                 </ul>
+                <button class="btn btn-secondary" onclick="alert('查看详情功能待实现')" data-zh="查看详情" data-en="View Details">查看详情</button>
             </div>
 
             <div class="card">
-                <h3 style="color: var(--accent-blue);">✏️ Z-Image-Edit</h3>
-                <p><strong>图像编辑版（待发布）</strong></p>
+                <h3 style="color: var(--accent-blue);" data-zh="✏️ Z-Image-Edit" data-en="✏️ Z-Image-Edit">✏️ Z-Image-Edit</h3>
+                <p data-zh="<strong>图像编辑版（待发布）</strong>" data-en="<strong>Image Editing Version (To Be Released)</strong>"><strong>图像编辑版（待发布）</strong></p>
                 <ul style="margin-top: 1rem; color: var(--text-secondary);">
-                    <li>自然语言驱动的图像修改</li>
-                    <li>换背景、改元素等功能</li>
-                    <li>保持原图风格一致性</li>
-                    <li>支持复合编辑指令</li>
+                    <li data-zh="自然语言驱动的图像修改" data-en="Natural language-driven image modification">自然语言驱动的图像修改</li>
+                    <li data-zh="换背景、改元素等功能" data-en="Background change, element modification functions">换背景、改元素等功能</li>
+                    <li data-zh="保持原图风格一致性" data-en="Maintains original image style consistency">保持原图风格一致性</li>
+                    <li data-zh="支持复合编辑指令" data-en="Supports composite editing instructions">支持复合编辑指令</li>
                 </ul>
+                <button class="btn btn-secondary" onclick="alert('查看详情功能待实现')" data-zh="查看详情" data-en="View Details">查看详情</button>
             </div>
         </div>
     </section>
 
     <!-- Tech Details -->
     <section id="tech" class="container" style="background: rgba(0,0,0,0.3); border-radius: 30px; padding: 4rem; margin: 3rem 0;">
-        <h2 class="section-title">技术深度解析</h2>
+        <h2 class="section-title" data-zh="技术深度解析" data-en="In-depth Technical Analysis">In-depth Technical Analysis</h2>
 
         <div class="tech-grid">
             <div class="tech-item">
                 <div class="tech-icon">🔬</div>
-                <h3>S³-DiT架构</h3>
-                <p>单流扩散Transformer，将文本、视觉、图像VAE令牌统一处理，突破传统双流架构瓶颈</p>
+                <h3 data-zh="S³-DiT架构" data-en="S³-DiT Architecture">S³-DiT Architecture</h3>
+                <p data-zh="单流扩散Transformer，将文本、视觉、图像VAE令牌统一处理，突破传统双流架构瓶颈" data-en="Single-stream diffusion Transformer, unified processing of text, vision, and image VAE tokens, breaking through traditional dual-stream architecture bottlenecks">Single-stream diffusion Transformer, unified processing of text, vision, and image VAE tokens, breaking through traditional dual-stream architecture bottlenecks</p>
             </div>
 
             <div class="tech-item">
                 <div class="tech-icon">⚡</div>
-                <h3>U-RoPE编码</h3>
-                <p>统一旋转位置编码，完美适配文本和图像的多维位置信息</p>
+                <h3 data-zh="U-RoPE编码" data-en="U-RoPE Encoding">U-RoPE Encoding</h3>
+                <p data-zh="统一旋转位置编码，完美适配文本和图像的多维位置信息" data-en="Unified rotary position encoding, perfectly adapted to multi-dimensional position information of text and images">Unified rotary position encoding, perfectly adapted to multi-dimensional position information of text and images</p>
             </div>
 
             <div class="tech-item">
                 <div class="tech-icon">🎯</div>
-                <h3>零初始化门控</h3>
-                <p>保障千层级网络稳定收敛，解决深层网络梯度问题</p>
+                <h3 data-zh="零初始化门控" data-en="Zero Initialization Gating">Zero Initialization Gating</h3>
+                <p data-zh="保障千层级网络稳定收敛，解决深层网络梯度问题" data-en="Ensures stable convergence of thousand-layer networks, solves deep network gradient problems">Ensures stable convergence of thousand-layer networks, solves deep network gradient problems</p>
             </div>
 
             <div class="tech-item">
                 <div class="tech-icon">🚀</div>
-                <h3>解耦DMD技术</h3>
-                <p>压缩推理步骤至8步，结合强化学习修补细节，实现速度与质量兼顾</p>
+                <h3 data-zh="解耦DMD技术" data-en="Decoupled DMD Technology">Decoupled DMD Technology</h3>
+                <p data-zh="压缩推理步骤至8步，结合强化学习修补细节，实现速度与质量兼顾" data-en="Compresses inference steps to 8, combines reinforcement learning to patch details, achieves both speed and quality">Compresses inference steps to 8, combines reinforcement learning to patch details, achieves both speed and quality</p>
             </div>
         </div>
 
@@ -1288,67 +1338,67 @@
             <div class="feature-box">
                 <div class="feature-title">
                     <span class="feature-icon">💻</span>
-                    硬件需求
+                    <span data-zh="硬件需求" data-en="Hardware Requirements">Hardware Requirements</span>
                 </div>
-                <p><span class="highlight">RTX 4090</span>：生成1024×1024仅需2.3秒<br>
-                <span class="highlight">RTX 3060</span>：5年前的显卡也能流畅运行<br>
-                对比Flux 2，存储空间节省80%</p>
+                <p><span class="highlight" data-zh="RTX 4090" data-en="RTX 4090">RTX 4090</span><span data-zh="：生成1024×1024仅需2.3秒" data-en=": Generate 1024×1024 in just 2.3 seconds">: Generate 1024×1024 in just 2.3 seconds</span><br>
+                <span class="highlight" data-zh="RTX 3060" data-en="RTX 3060">RTX 3060</span><span data-zh="：5年前的显卡也能流畅运行" data-en=": Graphics cards from 5 years ago can still run smoothly">: Graphics cards from 5 years ago can still run smoothly</span><br>
+                <span data-zh="对比Flux 2，存储空间节省80%" data-en="Compared to Flux 2, saves 80% storage space">Compared to Flux 2, saves 80% storage space</span></p>
             </div>
 
             <div class="feature-box">
                 <div class="feature-title">
                     <span class="feature-icon">📊</span>
-                    性能表现
+                    <span data-zh="性能表现" data-en="Performance Metrics">Performance Metrics</span>
                 </div>
-                <p><span class="highlight">FID分数：7.2</span>（越低越好）<br>
-                <span class="highlight">AI Arena排名：全球第四</span><br>
-                <span class="highlight">CVTG-2K准确率：0.8671</span></p>
+                <p><span class="highlight" data-zh="FID分数：7.2" data-en="FID Score: 7.2">FID Score: 7.2</span><span data-zh="（越低越好）" data-en=" (lower is better)"> (lower is better)</span><br>
+                <span class="highlight" data-zh="AI Arena排名：全球第四" data-en="AI Arena Ranking: Global 4th">AI Arena Ranking: Global 4th</span><br>
+                <span class="highlight" data-zh="CVTG-2K准确率：0.8671" data-en="CVTG-2K Accuracy: 0.8671">CVTG-2K Accuracy: 0.8671</span></p>
             </div>
 
             <div class="feature-box">
                 <div class="feature-title">
                     <span class="feature-icon">🌏</span>
-                    双语优势
+                    <span data-zh="双语优势" data-en="Bilingual Advantage">Bilingual Advantage</span>
                 </div>
-                <p>精准理解"小桥流水人家"等意境<br>
-                处理复杂中英文混合指令<br>
-                突破文字模糊、错字问题</p>
+                <p data-zh="精准理解"小桥流水人家"等意境" data-en="Precisely understands artistic conceptions like "small bridge, flowing water, homes"">Precisely understands artistic conceptions like "small bridge, flowing water, homes"<br>
+                <span data-zh="处理复杂中英文混合指令" data-en="Handles complex Chinese-English mixed instructions">Handles complex Chinese-English mixed instructions</span><br>
+                <span data-zh="突破文字模糊、错字问题" data-en="Overcomes text blur and character error issues">Overcomes text blur and character error issues</span></p>
             </div>
         </div>
     </section>
 
     <!-- Use Cases -->
     <section class="container">
-        <h2 class="section-title">应用场景</h2>
+        <h2 class="section-title" data-zh="应用场景" data-en="Application Scenarios">Application Scenarios</h2>
 
         <div class="grid-3">
             <div class="card">
-                <h3>👥 个人创作者</h3>
+                <h3 data-zh="👥 个人创作者" data-en="👥 Individual Creators">👥 Individual Creators</h3>
                 <ul style="color: var(--text-secondary);">
-                    <li>宠物拟人化插画</li>
-                    <li>卡通故事配图</li>
-                    <li>个性化头像</li>
-                    <li>手账插图设计</li>
+                    <li data-zh="宠物拟人化插画" data-en="Pet anthropomorphic illustrations">Pet anthropomorphic illustrations</li>
+                    <li data-zh="卡通故事配图" data-en="Cartoon story illustrations">Cartoon story illustrations</li>
+                    <li data-zh="个性化头像" data-en="Personalized avatars">Personalized avatars</li>
+                    <li data-zh="手账插图设计" data-en="Journal embellishment designs">Journal embellishment designs</li>
                 </ul>
             </div>
 
             <div class="card">
-                <h3>🎨 职场从业者</h3>
+                <h3 data-zh="🎨 职场从业者" data-en="🎨 Professionals">🎨 Professionals</h3>
                 <ul style="color: var(--text-secondary);">
-                    <li>自媒体封面图</li>
-                    <li>国潮海报设计</li>
-                    <li>古诗意境可视化</li>
-                    <li>商品展示图</li>
+                    <li data-zh="自媒体封面图" data-en="Social media cover images">Social media cover images</li>
+                    <li data-zh="国潮海报设计" data-en="National trend poster designs">National trend poster designs</li>
+                    <li data-zh="古诗意境可视化" data-en="Ancient poetry意境visualization">Ancient poetry意境visualization</li>
+                    <li data-zh="商品展示图" data-en="Product display images">Product display images</li>
                 </ul>
             </div>
 
             <div class="card">
-                <h3>👨‍💻 技术开发者</h3>
+                <h3 data-zh="👨‍💻 技术开发者" data-en="👨‍💻 Developers">👨‍💻 Developers</h3>
                 <ul style="color: var(--text-secondary);">
-                    <li>垂直领域微调</li>
-                    <li>API服务部署</li>
-                    <li>架构研究</li>
-                    <li>社区贡献</li>
+                    <li data-zh="垂直领域微调" data-en="Vertical domain fine-tuning">Vertical domain fine-tuning</li>
+                    <li data-zh="API服务部署" data-en="API service deployment">API service deployment</li>
+                    <li data-zh="架构研究" data-en="Architecture research">Architecture research</li>
+                    <li data-zh="社区贡献" data-en="Community contribution">Community contribution</li>
                 </ul>
             </div>
         </div>
@@ -1356,63 +1406,63 @@
 
     <!-- Tutorial Section -->
     <section id="tutorial" class="container" style="background: linear-gradient(135deg, rgba(0, 166, 255, 0.05), rgba(0, 0, 0, 0.3)); border-radius: 30px; padding: 4rem;">
-        <h2 class="section-title">实战教程：热门提示词</h2>
+        <h2 class="section-title" data-zh="实战教程：热门提示词" data-en="Practical Tutorial: Popular Prompts">Practical Tutorial: Popular Prompts</h2>
 
         <div class="prompt-grid">
             <div class="prompt-card">
-                <h3 class="prompt-title">🏮 国风系列</h3>
+                <h3 class="prompt-title" data-zh="🏮 国风系列" data-en="🏮 Chinese Style Series">🏮 Chinese Style Series</h3>
                 <div class="code-block">
-                    <code>国风茶馆的木质招牌，带清晰"茗香"二字，古色古香的建筑，红灯笼，竹子装饰，清晨阳光斜射</code>
+                    <code data-zh="国风茶馆的木质招牌，带清晰"茗香"二字，古色古香的建筑，红灯笼，竹子装饰，清晨阳光斜射" data-en="Chinese tea house wooden sign with clear "Ming Xiang" characters, antique architecture, red lanterns, bamboo decorations, morning sunlight">Chinese tea house wooden sign with clear "Ming Xiang" characters, antique architecture, red lanterns, bamboo decorations, morning sunlight</code>
                 </div>
                 <ul class="prompt-examples">
-                    <li>江南水乡：小桥流水人家，水墨画风格</li>
-                    <li>故宫雪景：红墙黄瓦，白雪皑皑</li>
-                    <li>古典园林：诗情画意，电影级画质</li>
+                    <li data-zh="江南水乡：小桥流水人家，水墨画风格" data-en="Jiangnan Water Town: Small bridge, flowing water, homes, ink wash painting style">Jiangnan Water Town: Small bridge, flowing water, homes, ink wash painting style</li>
+                    <li data-zh="故宫雪景：红墙黄瓦，白雪皑皑" data-en="Forbidden City Snow: Red walls, yellow tiles, white snow">Forbidden City Snow: Red walls, yellow tiles, white snow</li>
+                    <li data-zh="古典园林：诗情画意，电影级画质" data-en="Classical Garden: Poetic and picturesque, cinematic quality">Classical Garden: Poetic and picturesque, cinematic quality</li>
                 </ul>
             </div>
 
             <div class="prompt-card">
-                <h3 class="prompt-title">📸 人像写真</h3>
+                <h3 class="prompt-title" data-zh="📸 人像写真" data-en="📸 Portrait Photography">📸 Portrait Photography</h3>
                 <div class="code-block">
-                    <code>咖啡馆门口的年轻亚洲女性，穿着米色毛衣，温柔的微笑，玻璃门倒影，午后阳光，85mm镜头</code>
+                    <code data-zh="咖啡馆门口的年轻亚洲女性，穿着米色毛衣，温柔的微笑，玻璃门倒影，午后阳光，85mm镜头" data-en="Young Asian woman at cafe entrance, wearing beige sweater, gentle smile, glass door reflection, afternoon sunlight, 85mm lens">Young Asian woman at cafe entrance, wearing beige sweater, gentle smile, glass door reflection, afternoon sunlight, 85mm lens</code>
                 </div>
                 <ul class="prompt-examples">
-                    <li>职场精英：商务肖像，摩天大楼背景</li>
-                    <li>古风美人：汉服长发，古典园林</li>
-                    <li>温柔人像：柔和光线，浅景深</li>
+                    <li data-zh="职场精英：商务肖像，摩天大楼背景" data-en="Business Elite: Business portrait, skyscraper background">Business Elite: Business portrait, skyscraper background</li>
+                    <li data-zh="古风美人：汉服长发，古典园林" data-en="Ancient Chinese Beauty: Hanfu, long hair, classical garden">Ancient Chinese Beauty: Hanfu, long hair, classical garden</li>
+                    <li data-zh="温柔人像：柔和光线，浅景深" data-en="Gentle Portrait: Soft lighting, shallow depth of field">Gentle Portrait: Soft lighting, shallow depth of field</li>
                 </ul>
             </div>
 
             <div class="prompt-card">
-                <h3 class="prompt-title">🌆 创意概念</h3>
+                <h3 class="prompt-title" data-zh="🌆 创意概念" data-en="🌆 Creative Concepts">🌆 Creative Concepts</h3>
                 <div class="code-block">
-                    <code>赛博朋克风格的城市夜景，霓虹灯广告牌，雨后街道反射，东方元素，未来主义</code>
+                    <code data-zh="赛博朋克风格的城市夜景，霓虹灯广告牌，雨后街道反射，东方元素，未来主义" data-en="Cyberpunk style city night scene, neon billboards, rain-soaked street reflections, Eastern elements, futuristic">Cyberpunk style city night scene, neon billboards, rain-soaked street reflections, Eastern elements, futuristic</code>
                 </div>
                 <ul class="prompt-examples">
-                    <li>3D玩具世界：微缩场景，梦幻氛围</li>
-                    <li>宇宙探索：宇航员，星空璀璨</li>
-                    <li>科技产品：极简风格，蓝色光效</li>
+                    <li data-zh="3D玩具世界：微缩场景，梦幻氛围" data-en="3D Toy World: Miniature scenes, dreamy atmosphere">3D Toy World: Miniature scenes, dreamy atmosphere</li>
+                    <li data-zh="宇宙探索：宇航员，星空璀璨" data-en="Space Exploration: Astronaut, brilliant starry sky">Space Exploration: Astronaut, brilliant starry sky</li>
+                    <li data-zh="科技产品：极简风格，蓝色光效" data-en="Tech Products: Minimalist style, blue light effects">Tech Products: Minimalist style, blue light effects</li>
                 </ul>
             </div>
         </div>
 
         <div class="tips-container">
-            <h3 style="text-align: center; margin-bottom: 2rem; color: var(--accent-blue);">💡 使用技巧</h3>
+            <h3 style="text-align: center; margin-bottom: 2rem; color: var(--accent-blue);" data-zh="💡 使用技巧" data-en="💡 Usage Tips">💡 Usage Tips</h3>
             <div class="tips-grid">
                 <div class="tip-item">
                     <div class="tip-icon">🔤</div>
-                    <h4>中英混合</h4>
-                    <p>Z-image擅长处理中英文混合提示，描述更精确</p>
+                    <h4 data-zh="中英混合" data-en="Mixed Chinese-English">Mixed Chinese-English</h4>
+                    <p data-zh="Z-image擅长处理中英文混合提示，描述更精确" data-en="Z-image excels at processing Chinese-English mixed prompts for more precise descriptions">Z-image excels at processing Chinese-English mixed prompts for more precise descriptions</p>
                 </div>
                 <div class="tip-item">
                     <div class="tip-icon">✍️</div>
-                    <h4>文字生成</h4>
-                    <p>明确"清晰文字"、"字体"效果更好</p>
+                    <h4 data-zh="文字生成" data-en="Text Generation">Text Generation</h4>
+                    <p data-zh="明确"清晰文字"、"字体"效果更好" data-en="Specify "clear text", "font" for better results">Specify "clear text", "font" for better results</p>
                 </div>
                 <div class="tip-item">
                     <div class="tip-icon">⚙️</div>
-                    <h4>参数优化</h4>
-                    <p>1024×1024, 8-9步, Guidance 0.0</p>
+                    <h4 data-zh="参数优化" data-en="Parameter Optimization">Parameter Optimization</h4>
+                    <p data-zh="1024×1024, 8-9步, Guidance 0.0" data-en="1024×1024, 8-9 steps, Guidance 0.0">1024×1024, 8-9 steps, Guidance 0.0</p>
                 </div>
             </div>
         </div>
@@ -1420,56 +1470,56 @@
 
     <!-- FAQ Section -->
     <section id="faq" class="container">
-        <h2 class="section-title">常见问题解答</h2>
+        <h2 class="section-title" data-zh="常见问题解答" data-en="Frequently Asked Questions">Frequently Asked Questions</h2>
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <h3>哪些硬件能流畅运行Z-Image？显存不够该怎么解决？</h3>
+                <h3 data-zh="哪些硬件能流畅运行Z-Image？显存不够该怎么解决？" data-en="What hardware can smoothly run Z-Image? How to solve insufficient memory?">What hardware can smoothly run Z-Image? How to solve insufficient memory?</h3>
                 <span class="faq-toggle">+</span>
             </div>
             <div class="faq-answer">
-                <p>消费级的RTX 3060显卡即可流畅运行，RTX 4090生成1024×1024图像仅需2.3秒且显存占用13GB。</p>
-                <p>若出现显存不足：</p>
+                <p data-zh="消费级的RTX 3060显卡即可流畅运行，RTX 4090生成1024×1024图像仅需2.3秒且显存占用13GB。" data-en="Consumer-grade RTX 3060 graphics cards can run smoothly. RTX 4090 generates 1024×1024 images in just 2.3 seconds with 13GB memory usage.">Consumer-grade RTX 3060 graphics cards can run smoothly. RTX 4090 generates 1024×1024 images in just 2.3 seconds with 13GB memory usage.</p>
+                <p data-zh="若出现显存不足：" data-en="If you encounter insufficient memory:">If you encounter insufficient memory:</p>
                 <ul style="margin-top: 1rem; padding-left: 1.5rem;">
-                    <li>先将分辨率降到384</li>
-                    <li>把批量处理数减到1</li>
-                    <li>用混合精度、4bit量化压缩显存</li>
-                    <li>开启CPU Offload把部分参数转移到CPU</li>
+                    <li data-zh="先将分辨率降到384" data-en="First reduce resolution to 384">First reduce resolution to 384</li>
+                    <li data-zh="把批量处理数减到1" data-en="Reduce batch processing to 1">Reduce batch processing to 1</li>
+                    <li data-zh="用混合精度、4bit量化压缩显存" data-en="Use mixed precision, 4bit quantization to compress memory">Use mixed precision, 4bit quantization to compress memory</li>
+                    <li data-zh="开启CPU Offload把部分参数转移到CPU" data-en="Enable CPU Offload to transfer some parameters to CPU">Enable CPU Offload to transfer some parameters to CPU</li>
                 </ul>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <h3>生成的图像出现全黑、细节模糊该怎么处理？</h3>
+                <h3 data-zh="生成的图像出现全黑、细节模糊该怎么处理？" data-en="How to handle generated images that are all black or have blurry details?">How to handle generated images that are all black or have blurry details?</h3>
                 <span class="faq-toggle">+</span>
             </div>
             <div class="faq-answer">
                 <ul>
-                    <li><strong>全黑</strong>：大概率是参数设置不当，建议将分辨率调到1024×1024，采样步数设为8-9</li>
-                    <li><strong>细节模糊</strong>：可在提示词中补充光效、材质等关键词，比如加上"电影风、黄金时段光影"</li>
-                    <li><strong>比例异常</strong>：细化人物描述，明确身高、肢体动作等细节</li>
+                    <li><strong data-zh="全黑" data-en="All black">All black</strong><span data-zh="：大概率是参数设置不当，建议将分辨率调到1024×1024，采样步数设为8-9" data-en=": Mostly due to improper parameter settings, adjust resolution to 1024×1024, sampling steps to 8-9">: Mostly due to improper parameter settings, adjust resolution to 1024×1024, sampling steps to 8-9</span></li>
+                    <li><strong data-zh="细节模糊" data-en="Blurry details">Blurry details</strong><span data-zh="：可在提示词中补充光效、材质等关键词，比如加上"电影风、黄金时段光影"" data-en=": Add lighting, material keywords in prompt, e.g., add "cinematic style, golden hour lighting"">: Add lighting, material keywords in prompt, e.g., add "cinematic style, golden hour lighting"</span></li>
+                    <li><strong data-zh="比例异常" data-en="Proportional abnormalities">Proportional abnormalities</strong><span data-zh="：细化人物描述，明确身高、肢体动作等细节" data-en=": Detail character descriptions, clarify height, limb movements">: Detail character descriptions, clarify height, limb movements</span></li>
                 </ul>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <h3>Z-Image用于商业场景有授权限制吗？</h3>
+                <h3 data-zh="Z-Image用于商业场景有授权限制吗？" data-en="Are there licensing restrictions for using Z-Image in commercial scenarios?">Are there licensing restrictions for using Z-Image in commercial scenarios?</h3>
                 <span class="faq-toggle">+</span>
             </div>
             <div class="faq-answer">
-                <p>个人、工作室和企业均可免费商用。二次开发后分发时，需保留版权声明，遵循相关许可规定即可。</p>
+                <p data-zh="个人、工作室和企业均可免费商用。二次开发后分发时，需保留版权声明，遵循相关许可规定即可。" data-en="Individuals, studios and enterprises can use it for free commercially. When distributing after secondary development, keep copyright notices and follow relevant license regulations.">Individuals, studios and enterprises can use it for free commercially. When distributing after secondary development, keep copyright notices and follow relevant license regulations.</p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <h3>用Z-Image生成的图像涉及版权问题吗？</h3>
+                <h3 data-zh="用Z-Image生成的图像涉及版权问题吗？" data-en="Do images generated by Z-Image involve copyright issues?">Do images generated by Z-Image involve copyright issues?</h3>
                 <span class="faq-toggle">+</span>
             </div>
             <div class="faq-answer">
-                <p>生成的图像若用于商业用途，要做好内容审核，避开成人内容、侵权元素等违规内容；同时建议保留生成所用的提示词和参数记录，以便应对可能的版权核查。</p>
+                <p data-zh="生成的图像若用于商业用途，要做好内容审核，避开成人内容、侵权元素等违规内容；同时建议保留生成所用的提示词和参数记录，以便应对可能的版权核查。" data-en="If generated images are used commercially, conduct content review, avoid adult content, infringing elements and other violations; also suggest keeping the prompts and parameter records used for generation to handle possible copyright checks.">If generated images are used commercially, conduct content review, avoid adult content, infringing elements and other violations; also suggest keeping the prompts and parameter records used for generation to handle possible copyright checks.</p>
             </div>
         </div>
     </section>
@@ -1477,8 +1527,8 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p style="color: var(--text-secondary);">© 2025 Z-image (造相). All Rights Reserved.</p>
-            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">6B小参数，20B+大能量</p>
+            <p style="color: var(--text-secondary);" data-zh="© 2025 Z-image (造相). All Rights Reserved." data-en="© 2025 Z-image. All Rights Reserved.">© 2025 Z-image. All Rights Reserved.</p>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;" data-zh="6B小参数，20B+大能量" data-en="6B Small Parameters, 20B+ Great Power">6B Small Parameters, 20B+ Great Power</p>
         </div>
     </footer>
 
@@ -1487,6 +1537,450 @@
     <script src="js/config.js"></script>
 
     <script>
+        // Language configuration
+        const translations = {
+            zh: {
+                // Navigation
+                'nav-products': '产品介绍',
+                'nav-technology': '技术解析',
+                'nav-tutorials': '实战教程',
+                'nav-faq': '常见问题',
+
+                // Hero Section
+                'hero-title': 'Z-Image - 6B参数，8步成画',
+                'hero-subtitle': 'AI生图黑马，用\'小而美\'重塑技术格局。当其他AI需要高端服务器时，你的RTX 3060就能流畅生成高质量图像。',
+                'btn-learn-more': '了解更多',
+                'btn-view-tutorial': '查看教程',
+
+                // Image Generator
+                'generator-title': '🎨 图像生成器',
+                'prompt-label': '提示词',
+                'prompt-placeholder': '输入您想要生成的图像描述，支持中英文...',
+                'size-label': '图像尺寸',
+                'count-label': '生成数量',
+                'style-label': '风格预设',
+                'style-realistic': '写实风格',
+                'style-anime': '动漫风格',
+                'style-chinese': '国风风格',
+                'style-cyberpunk': '赛博朋克',
+                'style-oil': '油画风格',
+                'style-watercolor': '水彩风格',
+                'advanced-options': '高级选项',
+                'seed-label': 'Seed值',
+                'steps-label': '采样步数',
+                'guidance-label': 'Guidance Scale',
+                'generate-btn': '生成图像',
+                'result-title': '生成结果',
+                'result-ready': '准备就绪',
+                'result-prompt': '输入提示词开始生成',
+                'result-generating': '正在生成图像，请稍候...',
+
+                // Product Intro
+                'intro-title': '产品定位与核心亮点',
+                'intro-what-is': '什么是Z-image？',
+                'intro-description': 'Z-image是于2025年11月发布的高效图像生成基础模型，核心定位是\'轻量且高性能\'。个人和企业可自由使用、修改并二次分发，搭配官方提供的技术报告和快速入门代码，方便开发者进行二次开发。',
+                'turbo-title': 'Z-Image-Turbo（高效推理版）',
+                'turbo-feature1': '仅需8步采样，亚秒级推理',
+                'turbo-feature2': '显存占用≤16GB',
+                'turbo-feature3': '擅长照片级生成与中英文字渲染',
+                'turbo-feature4': 'AI Arena全球第四',
+                'base-title': 'Z-Image-Base（基础开发版）',
+                'base-feature1': '保留6B全参数',
+                'base-feature2': '支持垂直领域数据微调',
+                'base-feature3': '全参数微调能力',
+                'base-feature4': '打造专属模型',
+                'edit-title': 'Z-Image-Edit（图像编辑版）',
+                'edit-feature1': '自然语言驱动的图像修改',
+                'edit-feature2': '换背景、改元素等功能',
+                'edit-feature3': '保持原图风格一致性',
+                'edit-feature4': '支持复合编辑指令',
+
+                // Technology
+                'tech-title': '技术深度解析',
+                's3-diat': 'S³-DiT架构',
+                's3-diat-desc': '单流扩散Transformer，将文本、视觉、图像VAE令牌统一处理，突破传统双流架构瓶颈',
+                'u-rope': 'U-RoPE编码',
+                'u-rope-desc': '统一旋转位置编码，完美适配文本和图像的多维位置信息',
+                'zero-gate': '零初始化门控',
+                'zero-gate-desc': '保障千层级网络稳定收敛，解决深层网络梯度问题',
+                'dmd-tech': '解耦DMD技术',
+                'dmd-tech-desc': '压缩推理步骤至8步，结合强化学习修补细节，实现速度与质量兼顾',
+                'hardware-title': '硬件需求',
+                'hardware-rtx4090': 'RTX 4090：生成1024×1024仅需2.3秒',
+                'hardware-rtx3060': 'RTX 3060：5年前的显卡也能流畅运行',
+                'hardware-storage': '对比Flux 2，存储空间节省80%',
+                'performance-title': '性能表现',
+                'performance-fid': 'FID分数：7.2（越低越好）',
+                'performance-arena': 'AI Arena排名：全球第四',
+                'performance-cvtg': 'CVTG-2K准确率：0.8671',
+                'bilingual-title': '双语优势',
+                'bilingual-feature1': '精准理解\'小桥流水人家\'等意境',
+                'bilingual-feature2': '处理复杂中英文混合指令',
+                'bilingual-feature3': '突破文字模糊、错字问题',
+
+                // Scenarios
+                'scenarios-title': '应用场景',
+                'personal-title': '个人创作者',
+                'personal-feature1': '宠物拟人化插画',
+                'personal-feature2': '卡通故事配图',
+                'personal-feature3': '个性化头像',
+                'personal-feature4': '手账插图设计',
+                'professional-title': '职场从业者',
+                'professional-feature1': '自媒体封面图',
+                'professional-feature2': '国潮海报设计',
+                'professional-feature3': '古诗意境可视化',
+                'professional-feature4': '商品展示图',
+                'developer-title': '技术开发者',
+                'developer-feature1': '垂直领域微调',
+                'developer-feature2': 'API服务部署',
+                'developer-feature3': '架构研究',
+                'developer-feature4': '社区贡献',
+
+                // Tutorials
+                'tutorial-title': '实战教程：热门提示词',
+                'chinese-style': '🏮 国风系列',
+                'chinese-1': '江南水乡：小桥流水人家，水墨画风格',
+                'chinese-2': '故宫雪景：红墙黄瓦，白雪皑皑',
+                'chinese-3': '古典园林：诗情画意，电影级画质',
+                'portrait': '📸 人像写真',
+                'portrait-1': '职场精英：商务肖像，摩天大楼背景',
+                'portrait-2': '古风美人：汉服长发，古典园林',
+                'portrait-3': '温柔人像：柔和光线，浅景深',
+                'creative': '🌆 创意概念',
+                'creative-1': '3D玩具世界：微缩场景，梦幻氛围',
+                'creative-2': '宇宙探索：宇航员，星空璀璨',
+                'creative-3': '科技产品：极简风格，蓝色光效',
+                'tips-title': '💡 使用技巧',
+                'tip-mixed': '中英混合',
+                'tip-mixed-desc': 'Z-image擅长处理中英文混合提示，描述更精确',
+                'tip-text': '文字生成',
+                'tip-text-desc': '明确\'清晰文字\'、\'字体\'效果更好',
+                'tip-params': '参数优化',
+                'tip-params-desc': '1024×1024, 8-9步, Guidance 0.0',
+
+                // FAQ
+                'faq-title': '常见问题解答',
+                'faq-q1': '哪些硬件能流畅运行Z-Image？显存不够该怎么解决？',
+                'faq-a1': '消费级的RTX 3060显卡即可流畅运行，RTX 4090生成1024×1024图像仅需2.3秒且显存占用13GB。',
+                'faq-a1-1': '若出现显存不足：',
+                'faq-a1-2': '先将分辨率降到384',
+                'faq-a1-3': '把批量处理数减到1',
+                'faq-a1-4': '用混合精度、4bit量化压缩显存',
+                'faq-a1-5': '开启CPU Offload把部分参数转移到CPU',
+                'faq-q2': '生成的图像出现全黑、细节模糊该怎么处理？',
+                'faq-a2-1': '全黑：大概率是参数设置不当，建议将分辨率调到1024×1024，采样步数设为8-9',
+                'faq-a2-2': '细节模糊：可在提示词中补充光效、材质等关键词，比如加上\'电影风、黄金时段光影\'',
+                'faq-a2-3': '比例异常：细化人物描述，明确身高、肢体动作等细节',
+                'faq-q3': 'Z-Image用于商业场景有授权限制吗？',
+                'faq-a3': '个人、工作室和企业均可免费商用。二次开发后分发时，需保留版权声明，遵循相关许可规定即可。',
+                'faq-q4': '用Z-Image生成的图像涉及版权问题吗？',
+                'faq-a4': '生成的图像若用于商业用途，要做好内容审核，避开成人内容、侵权元素等违规内容；同时建议保留生成所用的提示词和参数记录，以便应对可能的版权核查。',
+
+                // Footer
+                'footer-copyright': '© 2025 Z-image (造相). All Rights Reserved.',
+                'footer-slogan': '6B小参数，20B+大能量',
+
+                // JS Messages
+                'msg-enter-prompt': '请输入提示词',
+                'msg-generating': '生成中...',
+                'msg-connecting': '正在连接API...',
+                'msg-generating-image': '正在生成图像...',
+                'msg-complete': '生成完成',
+                'msg-failed': '生成失败',
+                'msg-no-image': '未生成到图像',
+                'msg-copied': '提示词已复制到剪贴板',
+                // Action buttons
+                'btn-download': '下载',
+                'btn-view': '查看',
+                'btn-copy-prompt': '复制提示词',
+                'btn-regenerate': '重新生成'
+            },
+            en: {
+                // Navigation
+                'nav-products': 'Products',
+                'nav-technology': 'Technology',
+                'nav-tutorials': 'Tutorials',
+                'nav-faq': 'FAQ',
+
+                // Hero Section
+                'hero-title': 'Z-Image - 6B Params, 8 Steps to Art',
+                'hero-subtitle': 'The dark horse of AI image generation, reshaping the tech landscape with "small but beautiful". When other AIs need high-end servers, your RTX 3060 can smoothly generate high-quality images.',
+                'btn-learn-more': 'Learn More',
+                'btn-view-tutorial': 'View Tutorial',
+
+                // Image Generator
+                'generator-title': '🎨 Image Generator',
+                'prompt-label': 'Prompt',
+                'prompt-placeholder': 'Enter your image description, supports Chinese and English...',
+                'size-label': 'Image Size',
+                'count-label': 'Generate Count',
+                'style-label': 'Style Preset',
+                'style-realistic': 'Realistic Style',
+                'style-anime': 'Anime Style',
+                'style-chinese': 'Chinese Style',
+                'style-cyberpunk': 'Cyberpunk Style',
+                'style-oil': 'Oil Painting Style',
+                'style-watercolor': 'Watercolor Style',
+                'advanced-options': 'Advanced Options',
+                'seed-label': 'Seed Value',
+                'steps-label': 'Sampling Steps',
+                'guidance-label': 'Guidance Scale',
+                'generate-btn': 'Generate Image',
+                'result-title': 'Generation Result',
+                'result-ready': 'Ready',
+                'result-prompt': 'Enter a prompt to start generating',
+                'result-generating': 'Generating image, please wait...',
+
+                // Product Intro
+                'intro-title': 'Product Positioning & Core Highlights',
+                'intro-what-is': 'What is Z-image?',
+                'intro-description': 'Z-image is an efficient image generation foundation model released in November 2025, with core positioning as "lightweight and high-performance". Individuals and enterprises can freely use, modify and redistribute it, coupled with official technical reports and quick-start code for convenient developer secondary development.',
+                'turbo-title': 'Z-Image-Turbo (Efficient Inference Version)',
+                'turbo-feature1': 'Only 8-step sampling, sub-second inference',
+                'turbo-feature2': 'Memory usage ≤16GB',
+                'turbo-feature3': 'Excels at photo-level generation & Chinese/English text rendering',
+                'turbo-feature4': '4th in AI Arena Global',
+                'base-title': 'Z-Image-Base (Basic Development Version)',
+                'base-feature1': 'Retains full 6B parameters',
+                'base-feature2': 'Supports vertical domain data fine-tuning',
+                'base-feature3': 'Full parameter fine-tuning capability',
+                'base-feature4': 'Create exclusive models',
+                'edit-title': 'Z-Image-Edit (Image Editing Version)',
+                'edit-feature1': 'Natural language-driven image modification',
+                'edit-feature2': 'Background change, element modification functions',
+                'edit-feature3': 'Maintains original image style consistency',
+                'edit-feature4': 'Supports composite editing instructions',
+
+                // Technology
+                'tech-title': 'In-depth Technical Analysis',
+                's3-diat': 'S³-DiT Architecture',
+                's3-diat-desc': 'Single-stream diffusion Transformer, unified processing of text, vision, and image VAE tokens, breaking through traditional dual-stream architecture bottlenecks',
+                'u-rope': 'U-RoPE Encoding',
+                'u-rope-desc': 'Unified rotary position encoding, perfectly adapted to multi-dimensional position information of text and images',
+                'zero-gate': 'Zero Initialization Gating',
+                'zero-gate-desc': 'Ensures stable convergence of thousand-layer networks, solves deep network gradient problems',
+                'dmd-tech': 'Decoupled DMD Technology',
+                'dmd-tech-desc': 'Compresses inference steps to 8, combines reinforcement learning to patch details, achieves both speed and quality',
+                'hardware-title': 'Hardware Requirements',
+                'hardware-rtx4090': 'RTX 4090: Generate 1024×1024 in just 2.3 seconds',
+                'hardware-rtx3060': 'RTX 3060: Graphics cards from 5 years ago can still run smoothly',
+                'hardware-storage': 'Compared to Flux 2, saves 80% storage space',
+                'performance-title': 'Performance Metrics',
+                'performance-fid': 'FID Score: 7.2 (lower is better)',
+                'performance-arena': 'AI Arena Ranking: Global 4th',
+                'performance-cvtg': 'CVTG-2K Accuracy: 0.8671',
+                'bilingual-title': 'Bilingual Advantage',
+                'bilingual-feature1': 'Precisely understands artistic conceptions like "small bridge, flowing water, homes"',
+                'bilingual-feature2': 'Handles complex Chinese-English mixed instructions',
+                'bilingual-feature3': 'Overcomes text blur and character error issues',
+
+                // Scenarios
+                'scenarios-title': 'Application Scenarios',
+                'personal-title': 'Individual Creators',
+                'personal-feature1': 'Pet anthropomorphic illustrations',
+                'personal-feature2': 'Cartoon story illustrations',
+                'personal-feature3': 'Personalized avatars',
+                'personal-feature4': 'Journal embellishment designs',
+                'professional-title': 'Professionals',
+                'professional-feature1': 'Social media cover images',
+                'professional-feature2': 'National trend poster designs',
+                'professional-feature3': 'Ancient poetry意境visualization',
+                'professional-feature4': 'Product display images',
+                'developer-title': 'Developers',
+                'developer-feature1': 'Vertical domain fine-tuning',
+                'developer-feature2': 'API service deployment',
+                'developer-feature3': 'Architecture research',
+                'developer-feature4': 'Community contribution',
+
+                // Tutorials
+                'tutorial-title': 'Practical Tutorial: Popular Prompts',
+                'chinese-style': '🏮 Chinese Style Series',
+                'chinese-1': 'Jiangnan Water Town: Small bridge, flowing water, homes, ink wash painting style',
+                'chinese-2': 'Forbidden City Snow: Red walls, yellow tiles, white snow',
+                'chinese-3': 'Classical Garden: Poetic and picturesque, cinematic quality',
+                'portrait': '📸 Portrait Photography',
+                'portrait-1': 'Business Elite: Business portrait, skyscraper background',
+                'portrait-2': 'Ancient Chinese Beauty: Hanfu, long hair, classical garden',
+                'portrait-3': 'Gentle Portrait: Soft lighting, shallow depth of field',
+                'creative': '🌆 Creative Concepts',
+                'creative-1': '3D Toy World: Miniature scenes, dreamy atmosphere',
+                'creative-2': 'Space Exploration: Astronaut, brilliant starry sky',
+                'creative-3': 'Tech Products: Minimalist style, blue light effects',
+                'tips-title': '💡 Usage Tips',
+                'tip-mixed': 'Mixed Chinese-English',
+                'tip-mixed-desc': 'Z-image excels at processing Chinese-English mixed prompts for more precise descriptions',
+                'tip-text': 'Text Generation',
+                'tip-text-desc': 'Specify "clear text", "font" for better results',
+                'tip-params': 'Parameter Optimization',
+                'tip-params-desc': '1024×1024, 8-9 steps, Guidance 0.0',
+
+                // FAQ
+                'faq-title': 'Frequently Asked Questions',
+                'faq-q1': 'What hardware can smoothly run Z-Image? How to solve insufficient memory?',
+                'faq-a1': 'Consumer-grade RTX 3060 graphics cards can run smoothly. RTX 4090 generates 1024×1024 images in just 2.3 seconds with 13GB memory usage.',
+                'faq-a1-1': 'If you encounter insufficient memory:',
+                'faq-a1-2': 'First reduce resolution to 384',
+                'faq-a1-3': 'Reduce batch processing to 1',
+                'faq-a1-4': 'Use mixed precision, 4bit quantization to compress memory',
+                'faq-a1-5': 'Enable CPU Offload to transfer some parameters to CPU',
+                'faq-q2': 'How to handle generated images that are all black or have blurry details?',
+                'faq-a2-1': 'All black: Mostly due to improper parameter settings,建议adjust resolution to 1024×1024, sampling steps to 8-9',
+                'faq-a2-2': 'Blurry details: Add lighting, material keywords in prompt, e.g., add "cinematic style, golden hour lighting"',
+                'faq-a2-3': 'Proportional abnormalities: Detail character descriptions, clarify height, limb movements',
+                'faq-q3': 'Are there licensing restrictions for using Z-Image in commercial scenarios?',
+                'faq-a3': 'Individuals, studios and enterprises can use it for free commercially. When distributing after secondary development, keep copyright notices and follow relevant license regulations.',
+                'faq-q4': 'Do images generated by Z-Image involve copyright issues?',
+                'faq-a4': 'If generated images are used commercially, conduct content review, avoid adult content, infringing elements and other violations;同时建议保留生成所用的提示词和参数记录，以便应对可能的版权核查。',
+
+                // Footer
+                'footer-copyright': '© 2025 Z-image. All Rights Reserved.',
+                'footer-slogan': '6B Small Parameters, 20B+ Great Power',
+
+                // JS Messages
+                'msg-enter-prompt': 'Please enter a prompt',
+                'msg-generating': 'Generating...',
+                'msg-connecting': 'Connecting to API...',
+                'msg-generating-image': 'Generating image...',
+                'msg-complete': 'Complete',
+                'msg-failed': 'Failed',
+                'msg-no-image': 'No image generated',
+                'msg-copied': 'Prompt copied to clipboard',
+                // Action buttons
+                'btn-download': 'Download',
+                'btn-view': 'View',
+                'btn-copy-prompt': 'Copy Prompt',
+                'btn-regenerate': 'Regenerate'
+            }
+        };
+
+        // Current language
+        let currentLanguage = localStorage.getItem('language') || 'en';
+
+        // Set language function
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+
+            // Update button states
+            document.getElementById('lang-zh').classList.toggle('active', lang === 'zh');
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+
+            // Update HTML lang attribute
+            document.getElementById('html-lang').setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+
+            // Update all elements with data attributes
+            updatePageLanguage();
+        }
+
+        // Update page language
+        function updatePageLanguage() {
+            // Update elements with data-zh and data-en attributes
+            const elements = document.querySelectorAll('[data-zh][data-en]');
+            elements.forEach(element => {
+                const text = element.getAttribute(`data-${currentLanguage}`);
+                if (text) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        // Handle placeholder attributes
+                        if (element.id === 'prompt') {
+                            if (currentLanguage === 'zh' && element.getAttribute('data-zh-placeholder')) {
+                                element.placeholder = element.getAttribute('data-zh-placeholder');
+                            } else if (currentLanguage === 'en' && element.getAttribute('data-en-placeholder')) {
+                                element.placeholder = element.getAttribute('data-en-placeholder');
+                            }
+                        }
+                        // Handle placeholder attribute for other inputs
+                        if (currentLanguage === 'zh' && element.getAttribute('data-zh-placeholder')) {
+                            element.placeholder = element.getAttribute('data-zh-placeholder');
+                        } else if (currentLanguage === 'en' && element.getAttribute('data-en-placeholder')) {
+                            element.placeholder = element.getAttribute('data-en-placeholder');
+                        }
+                    } else if (element.tagName === 'TITLE') {
+                        element.textContent = text;
+                        document.title = text;
+                    } else if (element.classList.contains('btn-text')) {
+                        // Handle button text
+                        element.textContent = text;
+                    } else {
+                        // Handle regular text content
+                        element.textContent = text;
+                    }
+                }
+            });
+
+            // Update select options
+            const selects = document.querySelectorAll('select[data-zh-default][data-en-default]');
+            selects.forEach(select => {
+                const defaultValue = select.getAttribute(`data-${currentLanguage}-default`);
+                if (defaultValue) {
+                    // Find the option with matching value and set it as selected
+                    const options = select.querySelectorAll('option');
+                    options.forEach(option => {
+                        if (option.getAttribute('value') === defaultValue) {
+                            option.selected = true;
+                        } else if (option.getAttribute('value') === select.getAttribute('value')) {
+                            // Keep current selection if it exists
+                            option.selected = true;
+                        }
+                    });
+                }
+            });
+
+            // Update option text contents
+            const options = document.querySelectorAll('option[data-zh][data-en]');
+            options.forEach(option => {
+                const text = option.getAttribute(`data-${currentLanguage}`);
+                if (text) {
+                    option.textContent = text;
+                }
+            });
+
+            // Update page title
+            const titleElement = document.querySelector('title');
+            if (titleElement) {
+                const titleText = titleElement.getAttribute(`data-${currentLanguage}`);
+                if (titleText) {
+                    document.title = titleText;
+                }
+            }
+
+            // Update image action buttons if they exist
+            updateImageActionButtons();
+        }
+
+        // Update image action buttons
+        function updateImageActionButtons() {
+            const actionButtons = document.querySelectorAll('.image-actions .action-btn');
+            if (actionButtons.length > 0) {
+                const buttonLabels = [
+                    translations[currentLanguage]['btn-download'],
+                    translations[currentLanguage]['btn-view'],
+                    translations[currentLanguage]['btn-copy-prompt'],
+                    translations[currentLanguage]['btn-regenerate']
+                ];
+
+                actionButtons.forEach((button, index) => {
+                    if (buttonLabels[index]) {
+                        // Keep the onclick attribute but update text
+                        const onclick = button.getAttribute('onclick');
+                        button.textContent = buttonLabels[index];
+                        if (onclick) {
+                            button.setAttribute('onclick', onclick);
+                        }
+                    }
+                });
+            }
+        }
+
+        // Switch language toggle
+        function switchLanguage() {
+            setLanguage(currentLanguage === 'zh' ? 'en' : 'zh');
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setLanguage(currentLanguage);
+        });
+
         // Smooth scroll function
         function scrollToSection(sectionId) {
             const element = document.getElementById(sectionId);
@@ -1639,7 +2133,8 @@
             // Get input values
             const prompt = document.getElementById('prompt').value;
             if (!prompt || prompt.trim() === '') {
-                alert('请输入提示词');
+                const errorMsg = translations[currentLanguage]['msg-enter-prompt'];
+                showToast(errorMsg, 'error');
                 return;
             }
 
@@ -1661,10 +2156,12 @@
 
             // Update UI
             generateBtn.disabled = true;
-            generateBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">生成中...</span>';
+            const generatingText = translations[currentLanguage]['msg-generating'];
+            generateBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">' + generatingText + '</span>';
             imageGallery.style.display = 'none';
             loadingState.style.display = 'block';
-            outputStatus.textContent = '正在连接API...';
+            const connectingText = translations[currentLanguage]['msg-connecting'];
+            outputStatus.textContent = connectingText;
             outputStatus.style.background = 'rgba(255, 165, 0, 0.1)';
             outputStatus.style.color = 'var(--warning-color)';
 
@@ -1679,7 +2176,8 @@
             }, 500);
 
             try {
-                outputStatus.textContent = '正在生成图像...';
+                const generatingImageText = translations[currentLanguage]['msg-generating-image'];
+                outputStatus.textContent = generatingImageText;
 
                 // 调用真实API
                 const response = await window.imageAPI.generateImage({
@@ -1700,7 +2198,8 @@
                 // 显示生成的图像
                 displayGeneratedImages(response.data || response.images || []);
 
-                outputStatus.textContent = '生成完成';
+                const completeText = translations[currentLanguage]['msg-complete'];
+                outputStatus.textContent = completeText;
                 outputStatus.style.background = 'rgba(0, 255, 0, 0.1)';
                 outputStatus.style.color = 'var(--success-color)';
 
@@ -1710,14 +2209,15 @@
                 progressFill.style.width = '0%';
                 progressText.textContent = '0%';
 
-                outputStatus.textContent = `生成失败: ${error.message}`;
+                const failedText2 = translations[currentLanguage]['msg-failed'];
+                outputStatus.textContent = `${failedText2}: ${error.message}`;
                 outputStatus.style.background = 'rgba(255, 0, 0, 0.1)';
                 outputStatus.style.color = 'var(--error-color)';
 
                 // 显示错误提示
                 imageGallery.innerHTML = `
                     <div style="grid-column: span 2; text-align: center; padding: 2rem;">
-                        <p style="color: var(--error-color);">生成失败</p>
+                        <p style="color: var(--error-color);">${failedText2}</p>
                         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">${error.message}</p>
                     </div>
                 `;
@@ -1726,7 +2226,9 @@
                 // Reset UI
                 isGenerating = false;
                 generateBtn.disabled = false;
-                generateBtn.innerHTML = '<span class="btn-icon">✨</span><span class="btn-text">生成图像</span>';
+                // 使用按钮上保存的data属性来获取正确的文本
+                const generateBtnText = generateBtn.querySelector('.btn-text').getAttribute(`data-${currentLanguage}`);
+                generateBtn.innerHTML = '<span class="btn-icon">✨</span><span class="btn-text">' + generateBtnText + '</span>';
 
                 setTimeout(() => {
                     loadingState.style.display = 'none';
@@ -1741,9 +2243,10 @@
             gallery.innerHTML = '';
 
             if (!images || images.length === 0) {
+                const noImageText = translations[currentLanguage]['msg-no-image'];
                 gallery.innerHTML = `
                     <div style="grid-column: span 2; text-align: center; padding: 2rem;">
-                        <p style="color: var(--text-secondary);">未生成到图像</p>
+                        <p style="color: var(--text-secondary);">${noImageText}</p>
                     </div>
                 `;
                 return;
@@ -1764,16 +2267,23 @@
                 const actions = document.createElement('div');
                 actions.className = 'image-actions';
                 actions.innerHTML = `
-                    <button class="action-btn" onclick="downloadImage('${imageUrl}')">下载</button>
-                    <button class="action-btn" onclick="viewImage('${imageUrl}')">查看</button>
-                    <button class="action-btn" onclick="copyPrompt()">复制提示词</button>
-                    <button class="action-btn" onclick="regenerateImage()">重新生成</button>
+                    <button class="action-btn" onclick="downloadImage('${imageUrl}')">${translations[currentLanguage]['btn-download']}</button>
+                    <button class="action-btn" onclick="viewImage('${imageUrl}')">${translations[currentLanguage]['btn-view']}</button>
+                    <button class="action-btn" onclick="copyPrompt()">${translations[currentLanguage]['btn-copy-prompt']}</button>
+                    <button class="action-btn" onclick="regenerateImage()">${translations[currentLanguage]['btn-regenerate']}</button>
                 `;
 
                 imageContainer.appendChild(img);
                 imageContainer.appendChild(actions);
                 gallery.appendChild(imageContainer);
             });
+        }
+
+        // Set prompt function with language support
+        function setPrompt(promptZh, promptEn) {
+            const promptInput = document.getElementById('prompt');
+            const promptToUse = currentLanguage === 'zh' ? promptZh : (promptEn || promptZh);
+            promptInput.value = promptToUse;
         }
 
         // Image action functions
@@ -1799,9 +2309,10 @@
 
         function copyPrompt() {
             const prompt = document.getElementById('prompt').value;
+            const copiedText = translations[currentLanguage]['msg-copied'];
             navigator.clipboard.writeText(prompt).then(() => {
                 // 改用更友好的提示
-                showToast('提示词已复制到剪贴板', 'success');
+                showToast(copiedText, 'success');
             }).catch(err => {
                 // 备用方案
                 const textArea = document.createElement('textarea');
@@ -1810,7 +2321,7 @@
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showToast('提示词已复制到剪贴板', 'success');
+                showToast(copiedText, 'success');
             });
         }
 

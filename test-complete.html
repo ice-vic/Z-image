@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-Image Language Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #f0f0f0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .language-switcher {
+            display: flex;
+            gap: 5px;
+        }
+        .lang-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #f8f8f8;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .lang-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .image-demo {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .image-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .action-btn {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .action-btn:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e7f3ff;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 data-zh="Z-Image 双语测试" data-en="Z-Image Bilingual Test">Z-Image Bilingual Test</h1>
+        <div class="language-switcher">
+            <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+            <button class="lang-btn" onclick="setLanguage('zh')">中</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2 data-zh="导航菜单测试" data-en="Navigation Menu Test">Navigation Menu Test</h2>
+        <ul>
+            <li data-zh="产品介绍" data-en="Products">Products</li>
+            <li data-zh="技术解析" data-en="Technology">Technology</li>
+            <li data-zh="实战教程" data-en="Tutorials">Tutorials</li>
+            <li data-zh="常见问题" data-en="FAQ">FAQ</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2 data-zh="图像生成器测试" data-en="Image Generator Test">Image Generator Test</h2>
+        <div>
+            <label data-zh="提示词：" data-en="Prompt:">Prompt:</label>
+            <input type="text" id="prompt" style="width: 300px; padding: 5px;"
+                   data-zh-placeholder="输入您想要生成的图像描述"
+                   data-en-placeholder="Enter your image description"
+                   placeholder="Enter your image description">
+            <button onclick="simulateGenerate()" data-zh="生成图像" data-en="Generate Image">Generate Image</button>
+        </div>
+
+        <div class="image-demo" id="imageDemo" style="display: none;">
+            <div style="width: 200px; height: 200px; background: #f0f0f0; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                <span style="font-size: 48px;">🖼️</span>
+            </div>
+            <div class="image-actions" id="imageActions">
+                <!-- Buttons will be generated here -->
+            </div>
+        </div>
+
+        <div class="status" id="status" data-zh="准备就绪" data-en="Ready">Ready</div>
+    </div>
+
+    <div class="test-section">
+        <h2 data-zh="消息提示测试" data-en="Message Test">Message Test</h2>
+        <button onclick="testMessages()" data-zh="测试消息" data-en="Test Messages">Test Messages</button>
+    </div>
+
+    <script>
+        // Language configuration
+        const translations = {
+            zh: {
+                'btn-download': '下载',
+                'btn-view': '查看',
+                'btn-copy-prompt': '复制提示词',
+                'btn-regenerate': '重新生成',
+                'msg-enter-prompt': '请输入提示词',
+                'msg-generating': '生成中...',
+                'msg-complete': '生成完成',
+                'msg-copied': '提示词已复制到剪贴板'
+            },
+            en: {
+                'btn-download': 'Download',
+                'btn-view': 'View',
+                'btn-copy-prompt': 'Copy Prompt',
+                'btn-regenerate': 'Regenerate',
+                'msg-enter-prompt': 'Please enter a prompt',
+                'msg-generating': 'Generating...',
+                'msg-complete': 'Complete',
+                'msg-copied': 'Prompt copied to clipboard'
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('language') || 'en';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update HTML lang attribute
+            document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+
+            // Update all elements with data attributes
+            updatePageLanguage();
+        }
+
+        function updatePageLanguage() {
+            const elements = document.querySelectorAll('[data-zh][data-en]');
+            elements.forEach(element => {
+                const text = element.getAttribute(`data-${currentLanguage}`);
+                if (text) {
+                    if (element.tagName === 'INPUT') {
+                        const placeholder = element.getAttribute(`data-${currentLanguage}-placeholder`);
+                        if (placeholder) {
+                            element.placeholder = placeholder;
+                        }
+                    } else {
+                        element.textContent = text;
+                    }
+                }
+            });
+
+            // Update image action buttons if they exist
+            updateImageActionButtons();
+        }
+
+        function updateImageActionButtons() {
+            const actionButtons = document.querySelectorAll('.image-actions .action-btn');
+            if (actionButtons.length > 0) {
+                const buttonLabels = [
+                    translations[currentLanguage]['btn-download'],
+                    translations[currentLanguage]['btn-view'],
+                    translations[currentLanguage]['btn-copy-prompt'],
+                    translations[currentLanguage]['btn-regenerate']
+                ];
+
+                actionButtons.forEach((button, index) => {
+                    if (buttonLabels[index]) {
+                        const onclick = button.getAttribute('onclick');
+                        button.textContent = buttonLabels[index];
+                        if (onclick) {
+                            button.setAttribute('onclick', onclick);
+                        }
+                    }
+                });
+            }
+        }
+
+        function simulateGenerate() {
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt) {
+                alert(translations[currentLanguage]['msg-enter-prompt']);
+                return;
+            }
+
+            const status = document.getElementById('status');
+            status.textContent = translations[currentLanguage]['msg-generating'];
+
+            setTimeout(() => {
+                status.textContent = translations[currentLanguage]['msg-complete'];
+
+                // Show image demo with action buttons
+                const imageDemo = document.getElementById('imageDemo');
+                const imageActions = document.getElementById('imageActions');
+
+                imageActions.innerHTML = `
+                    <button class="action-btn" onclick="downloadImage()">${translations[currentLanguage]['btn-download']}</button>
+                    <button class="action-btn" onclick="viewImage()">${translations[currentLanguage]['btn-view']}</button>
+                    <button class="action-btn" onclick="copyPrompt()">${translations[currentLanguage]['btn-copy-prompt']}</button>
+                    <button class="action-btn" onclick="regenerateImage()">${translations[currentLanguage]['btn-regenerate']}</button>
+                `;
+
+                imageDemo.style.display = 'block';
+            }, 1500);
+        }
+
+        function downloadImage() {
+            alert('Download clicked');
+        }
+
+        function viewImage() {
+            alert('View clicked');
+        }
+
+        function copyPrompt() {
+            const prompt = document.getElementById('prompt').value;
+            navigator.clipboard.writeText(prompt);
+            alert(translations[currentLanguage]['msg-copied']);
+        }
+
+        function regenerateImage() {
+            simulateGenerate();
+        }
+
+        function testMessages() {
+            alert(translations[currentLanguage]['msg-enter-prompt']);
+            setTimeout(() => alert(translations[currentLanguage]['msg-generating']), 1000);
+            setTimeout(() => alert(translations[currentLanguage]['msg-complete']), 2000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePageLanguage();
+        });
+    </script>
+</body>
+</html>

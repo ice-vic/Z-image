@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Switch Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .language-switcher {
+            margin-bottom: 20px;
+        }
+        .lang-btn {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: 1px solid #ccc;
+            background: #f0f0f0;
+            cursor: pointer;
+        }
+        .lang-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <h1>Language Switch Test Page</h1>
+
+    <div class="language-switcher">
+        <button class="lang-btn active" id="lang-en" onclick="setLanguage('en')">English</button>
+        <button class="lang-btn" id="lang-zh" onclick="setLanguage('zh')">中文</button>
+    </div>
+
+    <div class="test-section">
+        <h2 data-zh="导航测试" data-en="Navigation Test">Navigation Test</h2>
+        <ul>
+            <li data-zh="产品介绍" data-en="Products">Products</li>
+            <li data-zh="技术解析" data-en="Technology">Technology</li>
+            <li data-zh="实战教程" data-en="Tutorials">Tutorials</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2 data-zh="Hero区域测试" data-en="Hero Section Test">Hero Section Test</h2>
+        <p data-zh="Z-Image - 6B参数，8步成画" data-en="Z-Image - 6B Params, 8 Steps to Art">Z-Image - 6B Params, 8 Steps to Art</p>
+    </div>
+
+    <div class="test-section">
+        <h2 data-zh="图像生成器测试" data-en="Image Generator Test">Image Generator Test</h2>
+        <label data-zh="提示词" data-en="Prompt">Prompt:</label><br>
+        <input type="text" data-zh-placeholder="输入您想要生成的图像描述" data-en-placeholder="Enter your image description" placeholder="Enter your image description">
+        <br><br>
+        <button data-zh="生成图像" data-en="Generate Image">Generate Image</button>
+    </div>
+
+    <div class="test-section">
+        <h2 data-zh="产品介绍测试" data-en="Product Intro Test">Product Intro Test</h2>
+        <p data-zh="什么是Z-image？" data-en="What is Z-image?">What is Z-image?</p>
+    </div>
+
+    <script>
+        // Language configuration
+        const translations = {
+            zh: {
+                // Test messages
+                'msg-test': '测试成功！',
+                'msg-language-changed': '语言已切换为中文'
+            },
+            en: {
+                // Test messages
+                'msg-test': 'Test successful!',
+                'msg-language-changed': 'Language switched to English'
+            }
+        };
+
+        // Current language
+        let currentLanguage = localStorage.getItem('language') || 'en';
+
+        // Set language function
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+
+            // Update button states
+            document.getElementById('lang-zh').classList.toggle('active', lang === 'zh');
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+
+            // Update HTML lang attribute
+            document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+
+            // Update all elements with data attributes
+            updatePageLanguage();
+
+            // Show message
+            alert(translations[lang]['msg-language-changed']);
+        }
+
+        // Update page language
+        function updatePageLanguage() {
+            // Update elements with data-zh and data-en attributes
+            const elements = document.querySelectorAll('[data-zh][data-en]');
+            elements.forEach(element => {
+                const text = element.getAttribute(`data-${currentLanguage}`);
+                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                    // Handle placeholder
+                    const placeholder = element.getAttribute(`data-${currentLanguage}-placeholder`);
+                    if (placeholder) {
+                        element.placeholder = placeholder;
+                    }
+                } else if (element.tagName === 'TITLE') {
+                    document.title = text;
+                } else {
+                    element.textContent = text;
+                }
+            });
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setLanguage(currentLanguage);
+        });
+    </script>
+</body>
+</html>
